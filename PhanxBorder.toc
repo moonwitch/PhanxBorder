@@ -1,5 +1,13 @@
 ## Interface: 40300
 
+## Title: PhanxBorder
+## Notes: Adds shiny borders to stuff.
+
+## Author: Phanx
+## X-Email: addons@phanx.net
+## X-Copyright: Copyright (c) 2008-2012 Phanx. All rights reserved.
+## X-License: See the accompanying LICENSE file for details.
+
 Border.lua
 Apply.lua
 
