@@ -14,8 +14,8 @@ local SHADOW_TEXTURE = [[Interface\AddOns\PhanxBorder\Shadow]]
 --	GTFO.
 ------------------------------------------------------------------------
 
-local AddBorder, SetBorderAlpha, SetBorderColor, SetBorderSize
-local AddShadow, SetShadowAlpha, SetShadowColor, SetShadowSize
+local AddBorder, GetBorderAlpha, SetBorderAlpha, GetBorderColor, SetBorderColor, GetBorderSize, SetBorderSize
+local AddShadow, GetShadowAlpha, SetShadowAlpha, GetShadowColor, SetShadowColor, GetShadowSize, SetShadowSize
 local noop = function() end
 
 ------------------------------------------------------------------------
@@ -31,6 +31,11 @@ function SetBorderAlpha(self, a)
 	end
 end
 
+function GetBorderAlpha(self)
+	if not self or type(self) ~= "table" or not self.BorderTextures then return end
+	return self.BorderTextures[1]:GetAlpha()
+end
+
 ------------------------------------------------------------------------
 
 function SetBorderColor(self, r, g, b, a)
@@ -42,6 +47,11 @@ function SetBorderColor(self, r, g, b, a)
 	for i, tex in ipairs(self.BorderTextures) do
 		tex:SetVertexColor(r, g, b)
 	end
+end
+
+function GetBorderColor(self)
+	if not self or type(self) ~= "table" or not self.BorderTextures then return end
+	return self.BorderTextures[1]:GetVertexColor()
 end
 
 ------------------------------------------------------------------------
@@ -85,6 +95,11 @@ function SetBorderSize(self, size, offset)
 
 	t[8]:SetPoint("TOPRIGHT", t[2], "BOTTOMRIGHT")
 	t[8]:SetPoint("BOTTOMRIGHT", t[5], "TOPRIGHT")
+end
+
+function GetBorderSize(self)
+	if not self or type(self) ~= "table" or not self.BorderTextures then return end
+	return self.BorderTextures[1]:GetWidth()
 end
 
 ------------------------------------------------------------------------
@@ -151,8 +166,13 @@ function AddBorder(self, size, offset, force, shadow)
 	SetBorderColor(self)
 	SetBorderSize(self, size, offset)
 
+	self.GetBorderAlpha = GetBorderAlpha
 	self.SetBorderAlpha = SetBorderAlpha
+
+	self.GetBorderColor = GetBorderColor
 	self.SetBorderColor = SetBorderColor
+
+	self.GetBorderSize  = GetBorderSize
 	self.SetBorderSize  = SetBorderSize
 
 	if force then
@@ -213,9 +233,14 @@ function AddShadow(self, size, offset)
 	s[8].name = "RIGHT"
 	s[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
 
+	self.GetShadowAlpha = GetShadowAlpha
 	self.SetShadowAlpha = SetShadowAlpha
+
+	self.GetShadowColor = GetShadowColor
 	self.SetShadowColor = SetShadowColor
-	self.SetShadowSize = SetShadowSize
+
+	self.GetShadowSize  = GetShadowSize
+	self.SetShadowSize  = SetShadowSize
 
 	SetShadowColor(self)
 	SetShadowSize(self, offset)
@@ -234,6 +259,11 @@ function SetShadowAlpha(self, a)
 	end
 end
 
+function GetShadowAlpha(self)
+	if not self or type(self) ~= "table" or not self.ShadowTextures then return end
+	return self.ShadowTextures[1]:GetAlpha()
+end
+
 ------------------------------------------------------------------------
 
 function SetShadowColor(self, r, g, b, a)
@@ -245,6 +275,11 @@ function SetShadowColor(self, r, g, b, a)
 	for i, tex in ipairs(self.ShadowTextures) do
 		tex:SetVertexColor(r, g, b)
 	end
+end
+
+function GetShadowColor(self)
+	if not self or type(self) ~= "table" or not self.ShadowTextures then return end
+	return self.ShadowTextures[1]:GetVertexColor()
 end
 
 ------------------------------------------------------------------------
@@ -287,6 +322,11 @@ function SetShadowSize(self, size, offset)
 	s[8]:SetPoint("BOTTOMRIGHT", s[5], "TOPRIGHT")
 end
 
+function GetShadowSize(self)
+	if not self or type(self) ~= "table" or not self.ShadowTextures then return end
+	return self.ShadowTextures[1]:GetWidth()
+end
+
 ------------------------------------------------------------------------
 --	GLOBAL
 ------------------------------------------------------------------------
@@ -294,12 +334,18 @@ end
 _G.PhanxBorder = {
 	AddBorder = AddBorder,
 	AddShadow = AddShadow,
+	GetBorderAlpha = GetBorderAlpha,
 	SetBorderAlpha = SetBorderAlpha,
+	GetBorderColor = GetBorderColor,
 	SetBorderColor = SetBorderColor,
-	SetBorderSize = SetBorderSize,
+	GetBorderSize  = GetBorderSize,
+	SetBorderSize  = SetBorderSize,
+	GetShadowAlpha = GetShadowAlpha,
 	SetShadowAlpha = SetShadowAlpha,
+	GetShadowColor = GetShadowColor,
 	SetShadowColor = SetShadowColor,
-	SetShadowSize = SetShadowSize,
+	GetShadowSize  = GetShadowSize,
+	SetShadowSize  = SetShadowSize,
 }
 
 ------------------------------------------------------------------------
