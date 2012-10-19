@@ -108,8 +108,8 @@ table.insert(applyFuncs, function()
 		_G["SpellButton" .. i .. "SlotFrame"]:SetTexture("")
 		_G["SpellButton" .. i .. "IconTexture"]:SetTexCoord(0.06, 0.94, 0.06, 0.94)
 	end
---[[
-	-- Companion buttons
+
+	--[[ Companion buttons
 	for i = 1, 12 do
 		local button = _G["SpellBookCompanionButton" .. i]
 		AddBorder(button)
@@ -117,8 +117,19 @@ table.insert(applyFuncs, function()
 		button:HookScript("OnEnable", Button_OnEnable)
 		button.Background:SetTexture("")
 		button.IconTexture:SetTexCoord(0.06, 0.94, 0.06, 0.94)
-	end
-]]
+	end]]
+
+	--[[ Core Abilities buttons
+	for i = 1, 8 do
+		local button = select(i, SpellBookCoreAbilitiesFrame:GetChildren())
+		if button then
+			button:HookScript("OnDisable", Button_OnDisable)
+			button:HookScript("OnEnable", Button_OnEnable)
+			_G["SpellButton" .. i .. "Background"]:SetTexture("")
+			_G["SpellButton" .. i .. "SlotFrame"]:SetTexture("")
+			button.iconTexture:SetTexCoord(0.06, 0.94, 0.06, 0.94)
+		end
+	end]]
 	return true
 end)
 
@@ -322,6 +333,17 @@ table.insert(applyFuncs, function()
 			Butsu:SetBorderColor(color.r, color.g, color.b)
 			Butsu.title:SetTextColor(color.r, color.g, color.b)
 		end
+		return true
+	end
+end)
+
+------------------------------------------------------------------------
+--	CandyBuckets
+------------------------------------------------------------------------
+
+table.insert(applyFuncs, function()
+	if CandyBucketsTooltipFrame then
+		AddBorder(CandyBucketsTooltipFrame)
 		return true
 	end
 end)
