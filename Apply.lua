@@ -55,6 +55,7 @@ table.insert(applyFuncs, function()
 		"DropDownList2MenuBackdrop",
 
 		"ConsolidatedBuffsTooltip",
+		"FloatingBattlePetTooltip",
 		"FrameStackTooltip",
 		"FriendsTooltip",
 		"GameTooltip",
