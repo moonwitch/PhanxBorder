@@ -48,6 +48,7 @@ table.insert(applyFuncs, function()
 		"GhostFrame",
 		"LFDSearchStatus",
 		"Minimap",
+		"QueueStatusFrame",
 		"TicketStatusFrame",
 
 		"DropDownList1MenuBackdrop",
