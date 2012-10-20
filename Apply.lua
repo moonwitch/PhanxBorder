@@ -38,7 +38,7 @@ eventFrame:RegisterEvent("VARIABLES_LOADED")
 table.insert(applyFuncs, function()
 	local BG = { bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8 }
 
-	for _, region in pairs({s
+	for _, region in pairs({
 		"Background",
 		"BorderBottom",
 		"BorderBottomLeft",
