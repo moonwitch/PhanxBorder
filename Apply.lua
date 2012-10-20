@@ -36,10 +36,36 @@ eventFrame:RegisterEvent("VARIABLES_LOADED")
 ------------------------------------------------------------------------
 
 table.insert(applyFuncs, function()
+	local BG = { bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8 }
+
+	for _, region in pairs({s
+		"Background",
+		"BorderBottom",
+		"BorderBottomLeft",
+		"BorderBottomRight",
+		"BorderLeft",
+		"BorderRight",
+		"BorderTop",
+		"BorderTopLeft",
+		"BorderTopRight",
+	}) do
+		BattlePetTooltip[region]:SetTexture(nil)
+		BattlePetTooltip[region]:Hide()
+
+		FloatingBattlePetTooltip[region]:SetTexture(nil)
+		FloatingBattlePetTooltip[region]:Hide()
+	end
+
+	BattlePetTooltip:SetBackdrop(BG)
+	BattlePetTooltip:SetBackdropColor(0, 0, 0, 0.9)
+
+	FloatingBattlePetTooltip:SetBackdrop(BG)
+	FloatingBattlePetTooltip:SetBackdropColor(0, 0, 0, 0.9)
+
 	GhostFrameLeft:Hide()
 	GhostFrameMiddle:Hide()
 	GhostFrameRight:Hide()
-	GhostFrame:SetBackdrop({ bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8 })
+	GhostFrame:SetBackdrop(BG)
 	GhostFrame:SetBackdropColor(0, 0, 0, 0.8)
 	GhostFrame:SetScript("OnMouseDown", nil)
 	GhostFrame:SetScript("OnMouseUp", nil)
@@ -54,6 +80,7 @@ table.insert(applyFuncs, function()
 		"DropDownList1MenuBackdrop",
 		"DropDownList2MenuBackdrop",
 
+		"BattlePetTooltip",
 		"ConsolidatedBuffsTooltip",
 		"FloatingBattlePetTooltip",
 		"FrameStackTooltip",
