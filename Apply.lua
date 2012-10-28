@@ -36,7 +36,11 @@ eventFrame:RegisterEvent("VARIABLES_LOADED")
 ------------------------------------------------------------------------
 
 table.insert(applyFuncs, function()
-	local BG = { bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8 }
+	local BG = {
+		bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8,
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]], edgeSize = 2,
+		insets = { left = 0, right = 0, top = 0, bottom = 0 },
+	}
 
 	for _, region in pairs({
 		"Background",
@@ -49,18 +53,35 @@ table.insert(applyFuncs, function()
 		"BorderTopLeft",
 		"BorderTopRight",
 	}) do
-		BattlePetTooltip[region]:SetTexture(nil)
 		BattlePetTooltip[region]:Hide()
-
-		FloatingBattlePetTooltip[region]:SetTexture(nil)
 		FloatingBattlePetTooltip[region]:Hide()
+		QueueStatusFrame[region]:Hide()
+	end
+
+	local function fixBG(self, r, g, b, a)
+		if not self.fixingBG then
+			self.fixingBG = true
+			if not r or r > 0 or g > 0 or b > 0 then
+				self:SetBackdropColor(0, 0, 0, 0.8)
+			end
+			self.fixingBG = nil
+		end
 	end
 
 	BattlePetTooltip:SetBackdrop(BG)
-	BattlePetTooltip:SetBackdropColor(0, 0, 0, 0.9)
+	BattlePetTooltip:SetBackdropColor(0, 0, 0, 0.8)
+	hooksecurefunc(BattlePetTooltip, "SetBackdropColor", fixBG)
+	hooksecurefunc(BattlePetTooltip, "Show", fixBG)
 
 	FloatingBattlePetTooltip:SetBackdrop(BG)
-	FloatingBattlePetTooltip:SetBackdropColor(0, 0, 0, 0.9)
+	FloatingBattlePetTooltip:SetBackdropColor(0, 0, 0, 0.8)
+	hooksecurefunc(FloatingBattlePetTooltip, "SetBackdropColor", fixBG)
+	hooksecurefunc(FloatingBattlePetTooltip, "Show", fixBG)
+
+	QueueStatusFrame:SetBackdrop(BG)
+	QueueStatusFrame:SetBackdropColor(0, 0, 0, 0.8)
+	hooksecurefunc(QueueStatusFrame, "SetBackdropColor", fixBG)
+	hooksecurefunc(QueueStatusFrame, "Show", fixBG)
 
 	GhostFrameLeft:Hide()
 	GhostFrameMiddle:Hide()
@@ -83,7 +104,6 @@ table.insert(applyFuncs, function()
 		"BattlePetTooltip",
 		"ConsolidatedBuffsTooltip",
 		"FloatingBattlePetTooltip",
-		"FrameStackTooltip",
 		"FriendsTooltip",
 		"GameTooltip",
 		"ItemRefShoppingTooltip1",
@@ -160,6 +180,20 @@ table.insert(applyFuncs, function()
 		end
 	end]]
 	return true
+end)
+
+table.insert(applyFuncs, function()
+	if EventTraceTooltip then
+		AddBorder(EventTraceTooltip)
+		return true
+	end
+end)
+
+table.insert(applyFuncs, function()
+	if FrameStackTooltip then
+		AddBorder(FrameStackTooltip)
+		return true
+	end
 end)
 
 ------------------------------------------------------------------------
