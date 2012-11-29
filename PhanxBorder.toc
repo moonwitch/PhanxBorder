@@ -10,6 +10,6 @@
 ## X-License: See the accompanying LICENSE file for details.
 
 Border.lua
-Apply.lua
 
-# Macaroon.lua
+Blizzard.lua
+Addons.lua

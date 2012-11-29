@@ -2,9 +2,9 @@
 --	Configure stuff here. Should be self-explanatory.
 ------------------------------------------------------------------------
 
-local BORDER_SIZE = 14
-local BORDER_COLOR = { 0.3, 0.3, 0.3, 1 }
-local BORDER_TEXTURE = [[Interface\AddOns\PhanxBorder\Border]]
+local BORDER_SIZE = 24
+local BORDER_COLOR = { 0.8, 0.8, 0.8, 1 } -- { 0.3, 0.3, 0.3, 1 }
+local BORDER_TEXTURE = [[Interface\AddOns\PhanxMedia\LerbUI\bordernp]]
 
 local SHADOW_SIZE = 1.5
 local SHADOW_COLOR = { 0, 0, 0, 1 }
@@ -62,12 +62,12 @@ function SetBorderSize(self, size, offset)
 		size = BORDER_SIZE
 	end
 
-	local scale = self:GetScale()
+	local scale = self:GetEffectiveScale() / UIParent:GetScale()
 	if scale ~= 1 then
 		size = size * (1 / scale)
 	end
 
-	local d = offset or (size / 2 - 2)
+	local d = offset or floor(size * 0.25 + 0.5) -- (size / 2 - 2)
 
 	local t = self.BorderTextures
 
@@ -95,16 +95,22 @@ function SetBorderSize(self, size, offset)
 
 	t[8]:SetPoint("TOPRIGHT", t[2], "BOTTOMRIGHT")
 	t[8]:SetPoint("BOTTOMRIGHT", t[5], "TOPRIGHT")
+
+	self.BorderSize = size
 end
 
 function GetBorderSize(self)
 	if not self or type(self) ~= "table" or not self.BorderTextures then return end
-	return self.BorderTextures[1]:GetWidth()
+	return self.BorderSize or BORDER_SIZE
 end
 
 ------------------------------------------------------------------------
 
 local borderedFrames = { }
+
+local function ScaleBorder(self)
+	return self:SetBorderSize(self:GetBorderSize())
+end
 
 function AddBorder(self, size, offset, force, shadow)
 	if not self or type(self) ~= "table" or self.BorderTextures or not self.CreateTexture then return end
@@ -141,7 +147,7 @@ function AddBorder(self, size, offset, force, shadow)
 	t[8].name = "RIGHT"
 	t[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
 
-	do
+	if self.SetBackdropBorderColor then
 		local backdrop = self:GetBackdrop()
 		if type(backdrop) == "table" then
 			if backdrop.edgeFile then
@@ -155,12 +161,23 @@ function AddBorder(self, size, offset, force, shadow)
 			end
 			self:SetBackdrop(backdrop)
 		end
+
+		self:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
+
+		if force then
+			self.SetBackdrop = noop
+			self.SetBackdropColor = noop
+			self.SetBackdropBorderColor = noop
+		else
+			self.SetBackdropBorderColor = SetBorderColor
+		end
 	end
 
-	if self.SetBackdropBorderColor then
-		self:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
-		self:SetBackdropBorderColor(0, 0, 0, 0)
-		self.SetBackdropBorderColor = SetBorderColor
+	do
+		local icon = self.Icon or self.icon
+		if type(icon) == "table" and icon.SetTexCoord then
+			icon:SetTexCoord(0.06, 0.94, 0.06, 0.94)
+		end
 	end
 
 	SetBorderColor(self)
@@ -175,10 +192,8 @@ function AddBorder(self, size, offset, force, shadow)
 	self.GetBorderSize  = GetBorderSize
 	self.SetBorderSize  = SetBorderSize
 
-	if force then
-		self.SetBackdrop = noop
-		self.SetBackdropColor = noop
-		self.SetBackdropBorderColor = noop
+	if self.SetScale then
+		hooksecurefunc(self, "SetScale", ScaleBorder)
 	end
 
 	if shadow then
