@@ -410,6 +410,24 @@ table.insert(applyFuncs, function()
 end)
 
 ------------------------------------------------------------------------
+--	PetBattleTeams
+------------------------------------------------------------------------
+
+table.insert(applyFuncs, function()
+	if PetBattleTeamsRosterFrame then
+		-- print("Adding borders to PetBattleTeams")
+		for i, teamFrames in pairs(PetBattleTeamsRosterFrame.scrollChild.teamFrames) do
+			for j, unitFrames in pairs(teamFrames.unitFrames) do
+				for k, unitFrame in pairs(unitFrames) do
+					AddBorder(unitFrame, nil, 2)
+				end
+			end
+		end
+		return true
+	end
+end)
+
+------------------------------------------------------------------------
 --	TomTom
 ------------------------------------------------------------------------
 
@@ -427,7 +445,7 @@ end)
 
 table.insert(applyFuncs, function()
 	if SexyCooldown and SexyCooldown.bars then
-		-- print("Adding border to SexyCooldown")
+		-- print("Adding borders to SexyCooldown")
 		local color = COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
 		for i, bar in ipairs(SexyCooldown.bars) do
 			AddBorder(bar)
