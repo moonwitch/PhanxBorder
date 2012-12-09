@@ -148,8 +148,11 @@ function AddBorder(self, size, offset, force, shadow)
 	t[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
 
 	if self.SetBackdropBorderColor then
-		local backdrop = self:GetBackdrop()
+		local a, backdrop = 0.8, self:GetBackdrop()
 		if type(backdrop) == "table" then
+			if strmatch(backdrop.bgFile or "", "Tooltip") then
+				a = 1
+			end
 			if backdrop.edgeFile then
 				backdrop.edgeFile = nil
 			end
@@ -162,7 +165,7 @@ function AddBorder(self, size, offset, force, shadow)
 			self:SetBackdrop(backdrop)
 		end
 
-		self:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
+		self:SetBackdropColor(0, 0, 0, a)
 
 		if force then
 			self.SetBackdrop = noop

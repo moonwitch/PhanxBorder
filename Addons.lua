@@ -116,23 +116,48 @@ end)
 
 table.insert(applyFuncs, function()
 	if ArchyDigSiteFrame then
-		AddBorder(ArchyDigSiteFrame)
+		local BG = {
+			bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8,
+			edgeFile = [[Interface\BUTTONS\WHITE8X8]], edgeSize = 2,
+			insets = { left = 0, right = 0, top = 0, bottom = 0 },
+		}
+
 		ArchyDigSiteFrame:SetBackdrop(BG)
 		ArchyDigSiteFrame:SetBackdropColor(0, 0, 0, 0.8)
+		ArchyDigSiteFrame:SetBackdropBorderColor(0, 0, 0, 0.8)
+		AddBorder(ArchyDigSiteFrame)
+		ArchyDigSiteFrame.SetBackdrop = noop
+		ArchyDigSiteFrame.SetBackdropColor = noop
 		ArchyDigSiteFrame.SetBackdropBorderColor = noop
-		ArchyDigSiteFrame:SetBorderColor()
+		ArchyDigSiteFrame.SetBorderSize = noop
+		ArchyDigSiteFrame:SetScale(1)
+		ArchyDigSiteFrame.SetScale = noop
 
-		AddBorder(ArchyArtifactFrame)
 		ArchyArtifactFrame:SetBackdrop(BG)
 		ArchyArtifactFrame:SetBackdropColor(0, 0, 0, 0.8)
+		ArchyArtifactFrame:SetBackdropBorderColor(0, 0, 0, 0.8)
+		AddBorder(ArchyArtifactFrame)
+		ArchyArtifactFrame.SetBackdrop = noop
+		ArchyArtifactFrame.SetBackdropColor = noop
 		ArchyArtifactFrame.SetBackdropBorderColor = noop
-		ArchyArtifactFrame:SetBorderColor()
+		ArchyArtifactFrame.SetBorderSize = noop -- called by options setters for some reason
+		ArchyArtifactFrame:SetScale(1)
+		ArchyArtifactFrame.SetScale = noop
 
 		ArchyDistanceIndicatorFrameCircleDistance:SetFont((GameFontNormal:GetFont()), 30, "OUTLINE")
 		ArchyDistanceIndicatorFrameCircleDistance:SetTextColor(1, 1, 1)
 
 		ArchyDistanceIndicatorFrameSurveyButton:SetNormalTexture(nil)
 		ArchyDistanceIndicatorFrameCrateButton:SetNormalTexture(nil)
+
+		ArchyArtifactFrame:HookScript("OnShow", function(f)
+			f.skillBar:SetStatusBarTexture(f.children[1].fragmentBar:GetStatusBarTexture():GetTexture())
+
+			for i = 1, #f.children do
+				f.children[i].fragmentBar.artifact:SetFontObject(GameFontHighlightSmall)
+				f.children[i].fragmentBar.fragments:SetFontObject(GameFontHighlightSmall)
+			end
+		end)
 
 		return true
 	end

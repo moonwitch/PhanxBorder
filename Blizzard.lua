@@ -29,19 +29,20 @@ eventFrame:SetScript("OnEvent", function(self, event)
 	end
 end)
 
-------------------------------------------------------------------------
---	Blizzard frames
-------------------------------------------------------------------------
-
-local TOOLTIP_BACKDROP = {
+local BACKDROP = {
 	bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8,
 	edgeFile = [[Interface\BUTTONS\WHITE8X8]], edgeSize = 2,
 	insets = { left = 0, right = 0, top = 0, bottom = 0 },
 }
 
+------------------------------------------------------------------------
+--	Bordered tooltips
+------------------------------------------------------------------------
+
 local borderedTooltips = {
 	"BattlePetTooltip",
 	"FloatingBattlePetTooltip",
+	"LFDSearchStatus",
 	"QueueStatusFrame",
 }
 
@@ -61,15 +62,15 @@ table.insert(applyFuncs, function()
 	for i = #borderedTooltips, 1, -1 do
 		local f = _G[borderedTooltips[i]]
 		if f then
+			--print("Adding border to", borderedTooltips[i])
+
 			for _, region in pairs(borderedTooltipRegions) do
-				BattlePetTooltip[region]:SetTexture(nil)
-				FloatingBattlePetTooltip[region]:SetTexture(nil)
-				QueueStatusFrame[region]:SetTexture(nil)
+				f[region]:Hide()
 			end
-			f:SetBackdrop(TOOLTIP_BACKDROP)
-			f.SetBackdrop = noop
-			f:SetBackdropColor(0, 0, 0, 0.9)
-			f.SetBackdropColor = noop
+
+			f:SetBackdrop(GameTooltip:GetBackdrop())
+			AddBorder(f)
+
 			table.remove(borderedTooltips, i)
 		end
 	end
@@ -80,20 +81,20 @@ table.insert(applyFuncs, function()
 	end
 end)
 
+------------------------------------------------------------------------
+--	Miscellaneous frames
+------------------------------------------------------------------------
+
 table.insert(applyFuncs, function()
 	for i, f in pairs({
 		"GhostFrame",
-		"LFDSearchStatus",
 		"Minimap",
-		"QueueStatusFrame",
 		"TicketStatusFrame",
 
 		"DropDownList1MenuBackdrop",
 		"DropDownList2MenuBackdrop",
 
-		"BattlePetTooltip",
 		"ConsolidatedBuffsTooltip",
-		"FloatingBattlePetTooltip",
 		"FriendsTooltip",
 		"GameTooltip",
 		"ItemRefShoppingTooltip1",
@@ -120,7 +121,7 @@ table.insert(applyFuncs, function()
 	GhostFrameLeft:Hide()
 	GhostFrameMiddle:Hide()
 	GhostFrameRight:Hide()
-	GhostFrame:SetBackdrop(TOOLTIP_BACKDROP)
+	GhostFrame:SetBackdrop(BACKDROP)
 	GhostFrame:SetBackdropColor(0, 0, 0, 0.8)
 	GhostFrame:SetScript("OnMouseDown", nil)
 	GhostFrame:SetScript("OnMouseUp", nil)
