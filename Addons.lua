@@ -1,3 +1,11 @@
+--[[--------------------------------------------------------------------
+	PhanxBorder
+	World of Warcraft user interface addon:
+	Adds shiny borders to things.
+	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
+----------------------------------------------------------------------]]
+
 local AddBorder = PhanxBorder.AddBorder
 local AddShadow = PhanxBorder.AddShadow
 local Masque = select(4, GetAddOnInfo("Masque"))

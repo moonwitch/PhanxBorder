@@ -1,6 +1,10 @@
-------------------------------------------------------------------------
---	Configure stuff here. Should be self-explanatory.
-------------------------------------------------------------------------
+--[[--------------------------------------------------------------------
+	PhanxBorder
+	World of Warcraft user interface addon:
+	Adds shiny borders to things.
+	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
+----------------------------------------------------------------------]]
 
 local BORDER_SIZE = 24
 local BORDER_COLOR = { 0.8, 0.8, 0.8, 1 } -- { 0.3, 0.3, 0.3, 1 }
