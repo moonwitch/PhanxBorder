@@ -199,6 +199,7 @@ table.insert(applyFuncs, function()
 	end
 end)
 
+--[[
 table.insert(applyFuncs, function()
 	if PetJournal then
 		for _, region in pairs({
@@ -320,3 +321,4 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
+]]

@@ -40,7 +40,7 @@ end)
 ------------------------------------------------------------------------
 --	Dewdrop-2.0
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	local Dewdrop = LibStub and LibStub("Dewdrop-2.0", true)
 	if Dewdrop then
@@ -73,7 +73,7 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
-
+]]
 ------------------------------------------------------------------------
 --	LibQTip-1.0
 ------------------------------------------------------------------------
@@ -97,7 +97,7 @@ end)
 ------------------------------------------------------------------------
 --	Tablet-2.0
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	local Tablet = LibStub and LibStub("Tablet-2.0", true)
 	if Tablet then
@@ -117,7 +117,7 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
-
+]]
 ------------------------------------------------------------------------
 --	Archy
 ------------------------------------------------------------------------
@@ -160,7 +160,6 @@ table.insert(applyFuncs, function()
 
 		ArchyArtifactFrame:HookScript("OnShow", function(f)
 			f.skillBar:SetStatusBarTexture(f.children[1].fragmentBar:GetStatusBarTexture():GetTexture())
-
 			for i = 1, #f.children do
 				f.children[i].fragmentBar.artifact:SetFontObject(GameFontHighlightSmall)
 				f.children[i].fragmentBar.fragments:SetFontObject(GameFontHighlightSmall)
@@ -174,7 +173,7 @@ end)
 ------------------------------------------------------------------------
 --	AtlasLoot
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	if AtlasLootTooltip then
 		-- print("Adding border to AtlasLootTooltip")
@@ -182,11 +181,11 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
-
+]]
 ------------------------------------------------------------------------
 --	Auracle
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	if Auracle and Auracle.windows then
 		-- print("Adding border to Auracle")
@@ -216,7 +215,7 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
-
+]]
 ------------------------------------------------------------------------
 --	Bagnon
 ------------------------------------------------------------------------
@@ -263,7 +262,7 @@ end)
 ------------------------------------------------------------------------
 --	BuffBroker
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	if Masque then
 		return true
@@ -276,7 +275,7 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
-
+]]
 ------------------------------------------------------------------------
 --	Butsu
 ------------------------------------------------------------------------
@@ -312,7 +311,7 @@ table.insert(applyFuncs, function()
 	if CoolLine then
 		-- print("Adding border to CoolLine")
 		AddBorder(CoolLine)
-
+--[[
 		function CoolLine_AddBorders()
 			-- print("Adding border to CoolLine icons")
 			for i = 1, CoolLine.border:GetNumChildren() do
@@ -333,7 +332,7 @@ table.insert(applyFuncs, function()
 				CoolLine_AddBorders()
 			end
 		end
-
+]]
 		return true
 	end
 end)
@@ -341,7 +340,7 @@ end)
 ------------------------------------------------------------------------
 --	DockingStation
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	local panel = DockingStation and DockingStation:GetPanel(1)
 	if panel then
@@ -356,12 +355,11 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
-
-
+]]
 ------------------------------------------------------------------------
 --	Forte_Cooldown
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	if FWCDFrame then
 		-- print("Adding border to Forte_Cooldown")
@@ -369,8 +367,7 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
-
-
+]]
 ------------------------------------------------------------------------
 --	Grid
 ------------------------------------------------------------------------
@@ -433,7 +430,7 @@ end)
 ------------------------------------------------------------------------
 --	Omen
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	if OmenBarList then
 		-- print("Adding border to Omen")
@@ -441,7 +438,7 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
-
+]]
 ------------------------------------------------------------------------
 --	PetBattleTeams
 ------------------------------------------------------------------------
@@ -475,7 +472,7 @@ end)
 ------------------------------------------------------------------------
 --	SexyCooldown
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	if SexyCooldown and SexyCooldown.bars then
 		-- print("Adding borders to SexyCooldown")
@@ -495,7 +492,7 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
-
+]]
 ------------------------------------------------------------------------
 --	TomTom
 ------------------------------------------------------------------------
@@ -511,7 +508,7 @@ end)
 ------------------------------------------------------------------------
 --	TourGuide
 ------------------------------------------------------------------------
-
+--[[
 table.insert(applyFuncs, function()
 	if TourGuide and TourGuide.statusframe then
 		-- print("Adding border to TourGuide status frame")
@@ -520,3 +517,4 @@ table.insert(applyFuncs, function()
 		return true
 	end
 end)
+]]
