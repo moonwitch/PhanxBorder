@@ -41,7 +41,7 @@ end)
 --	Dewdrop-2.0
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	local Dewdrop = LibStub and LibStub("Dewdrop-2.0", true)
 	if Dewdrop then
 		local function AddDewdropBorders()
@@ -78,7 +78,7 @@ end)
 --	LibQTip-1.0
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	local QTip = LibStub and LibStub("LibQTip-1.0", true)
 	if QTip then
 		local Acquire = QTip.Acquire
@@ -98,7 +98,7 @@ end)
 --	Tablet-2.0
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	local Tablet = LibStub and LibStub("Tablet-2.0", true)
 	if Tablet then
 		local function AddTabletBorders()
@@ -122,7 +122,7 @@ end)
 --	Archy
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if ArchyDigSiteFrame then
 		local BG = {
 			bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8,
@@ -174,7 +174,7 @@ end)
 --	AtlasLoot
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if AtlasLootTooltip then
 		-- print("Adding border to AtlasLootTooltip")
 		AddBorder(AtlasLootTooltip)
@@ -186,7 +186,7 @@ end)
 --	Auracle
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if Auracle and Auracle.windows then
 		-- print("Adding border to Auracle")
 		-- Auracle.windows[1].trackers[1].uiFrame
@@ -220,7 +220,7 @@ end)
 --	Bagnon
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	local o = Bagnon and Bagnon.Frame and Bagnon.Frame.New
 	if o then
 		-- print("Adding border to Bagnon")
@@ -241,7 +241,7 @@ end)
 --	Bazooka
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if Bazooka and Bazooka.bars and #Bazooka.bars > 0 then
 		-- print("Adding border to Bazooka")
 		local color = COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
@@ -263,7 +263,7 @@ end)
 --	BuffBroker
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if Masque then
 		return true
 	end
@@ -280,7 +280,7 @@ end)
 --	Butsu
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if Butsu then
 		AddBorder(Butsu)
 		local color = COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
@@ -296,7 +296,7 @@ end)
 --	CandyBuckets
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if CandyBucketsTooltipFrame then
 		AddBorder(CandyBucketsTooltipFrame)
 		return true
@@ -307,7 +307,7 @@ end)
 --	CoolLine
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if CoolLine then
 		-- print("Adding border to CoolLine")
 		AddBorder(CoolLine)
@@ -341,7 +341,7 @@ end)
 --	DockingStation
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	local panel = DockingStation and DockingStation:GetPanel(1)
 	if panel then
 		-- print("Adding border to DockingStation panels")
@@ -360,7 +360,7 @@ end)
 --	Forte_Cooldown
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if FWCDFrame then
 		-- print("Adding border to Forte_Cooldown")
 		AddBorder(FWCDFrame, nil, nil, true)
@@ -372,7 +372,7 @@ end)
 --	Grid
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 --[[
 	if GridLayoutFrame then
 		GridLayoutFrame.texture:SetTexture("")
@@ -428,10 +428,22 @@ table.insert(applyFuncs, function()
 end)
 
 ------------------------------------------------------------------------
+--	InFlight
+------------------------------------------------------------------------
+
+tinsert(applyFuncs, function()
+	if InFlightBar then
+		-- print("Adding border to InFlight")
+		AddBorder(InFlightBar)
+		return true
+	end
+end)
+
+------------------------------------------------------------------------
 --	Omen
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if OmenBarList then
 		-- print("Adding border to Omen")
 		AddBorder(OmenBarList)
@@ -443,7 +455,7 @@ end)
 --	PetBattleTeams
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if PetBattleTeamsRosterFrame then
 		-- print("Adding borders to PetBattleTeams")
 		for i, teamFrames in pairs(PetBattleTeamsRosterFrame.scrollChild.teamFrames) do
@@ -461,7 +473,7 @@ end)
 --	TomTom
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if QuestPointerTooltip then
 		-- print("Adding border to QuestPointerTooltip")
 		AddBorder(QuestPointerTooltip)
@@ -473,7 +485,7 @@ end)
 --	SexyCooldown
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if SexyCooldown and SexyCooldown.bars then
 		-- print("Adding borders to SexyCooldown")
 		local color = COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
@@ -497,7 +509,7 @@ end)
 --	TomTom
 ------------------------------------------------------------------------
 
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if TomTomTooltip then
 		-- print("Adding border to TomTomTooltip")
 		AddBorder(TomTomTooltip)
@@ -509,7 +521,7 @@ end)
 --	TourGuide
 ------------------------------------------------------------------------
 --[[
-table.insert(applyFuncs, function()
+tinsert(applyFuncs, function()
 	if TourGuide and TourGuide.statusframe then
 		-- print("Adding border to TourGuide status frame")
 		AddBorder(TourGuide.statusframe)
