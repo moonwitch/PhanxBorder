@@ -432,9 +432,11 @@ end)
 ------------------------------------------------------------------------
 
 tinsert(applyFuncs, function()
-	if InFlightBar then
-		-- print("Adding border to InFlight")
-		AddBorder(InFlightBar)
+	if InFlight and InFlight.CreateBar then
+		hooksecurefunc(InFlight, "CreateBar", function()
+			-- print("Adding border to InFlight")
+			AddBorder(InFlightBar)
+		end)
 		return true
 	end
 end)
@@ -461,7 +463,7 @@ tinsert(applyFuncs, function()
 		for i, teamFrames in pairs(PetBattleTeamsRosterFrame.scrollChild.teamFrames) do
 			for j, unitFrames in pairs(teamFrames.unitFrames) do
 				for k, unitFrame in pairs(unitFrames) do
-					AddBorder(unitFrame, nil, 2)
+					AddBorder(unitFrame) -- , nil, 2)
 				end
 			end
 		end

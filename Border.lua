@@ -6,9 +6,9 @@
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
-local BORDER_SIZE = 24
-local BORDER_COLOR = { 0.8, 0.8, 0.8, 1 } -- { 0.3, 0.3, 0.3, 1 }
-local BORDER_TEXTURE = [[Interface\AddOns\PhanxMedia\LerbUI\bordernp]]
+local BORDER_SIZE = 16 -- 24
+local BORDER_COLOR = { 0.5, 0.5, 0.5, 1 } -- { 0.8, 0.8, 0.8, 1 }
+local BORDER_TEXTURE = [[Interface\AddOns\oUF_Phanx\Media\SimpleSquare]] -- PhanxMedia\LerbUI\bordernp]]
 
 local SHADOW_SIZE = 1.5
 local SHADOW_COLOR = { 0, 0, 0, 1 }
@@ -66,12 +66,14 @@ function SetBorderSize(self, size, offset)
 		size = BORDER_SIZE
 	end
 
+	self.BorderSize = size
+
 	local scale = self:GetEffectiveScale() / UIParent:GetScale()
 	if scale ~= 1 then
 		size = size * (1 / scale)
 	end
 
-	local d = offset or floor(size * 0.25 + 0.5) -- (size / 2 - 2)
+	local d = offset or (size * 0.5 - 2) -- floor(size * 0.25 + 0.5)
 
 	local t = self.BorderTextures
 
@@ -99,8 +101,6 @@ function SetBorderSize(self, size, offset)
 
 	t[8]:SetPoint("TOPRIGHT", t[2], "BOTTOMRIGHT")
 	t[8]:SetPoint("BOTTOMRIGHT", t[5], "TOPRIGHT")
-
-	self.BorderSize = size
 end
 
 function GetBorderSize(self)
@@ -112,8 +112,8 @@ end
 
 local borderedFrames = { }
 
-local function ScaleBorder(self)
-	return self:SetBorderSize(self:GetBorderSize())
+local function ScaleBorder(self, scale)
+	return self:SetBorderSize(self.BorderSize)
 end
 
 function AddBorder(self, size, offset, force, shadow)

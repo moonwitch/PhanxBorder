@@ -149,7 +149,7 @@ table.insert(applyFuncs, function()
 		"SecondaryProfession4SpellButtonRight",
 	}) do
 		-- print("Adding border to " .. f)
-		AddBorder(_G[f], nil, 4)
+		AddBorder(_G[f]) -- , nil, 4)
 	end
 
 	-- Spellbook/companion buttons
