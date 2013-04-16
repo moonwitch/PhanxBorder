@@ -6,13 +6,13 @@
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
-local BORDER_SIZE = 16 -- 24
-local BORDER_COLOR = { 0.5, 0.5, 0.5, 1 } -- { 0.8, 0.8, 0.8, 1 }
-local BORDER_TEXTURE = [[Interface\AddOns\oUF_Phanx\Media\SimpleSquare]] -- PhanxMedia\LerbUI\bordernp]]
+local BORDER_SIZE = 12
+local BORDER_COLOR = { 0.47, 0.47, 0.47, 1 }
+local BORDER_TEXTURE = [[Interface\AddOns\PhanxBorder\Textures\SimpleSquare]]
 
 local SHADOW_SIZE = 1.5
 local SHADOW_COLOR = { 0, 0, 0, 1 }
-local SHADOW_TEXTURE = [[Interface\AddOns\PhanxBorder\Shadow]]
+local SHADOW_TEXTURE = [[Interface\AddOns\PhanxBorder\Textures\GlowOuter]]
 
 ------------------------------------------------------------------------
 --	GTFO.
@@ -117,7 +117,7 @@ local function ScaleBorder(self, scale)
 end
 
 function AddBorder(self, size, offset, force, shadow)
-	if not self or type(self) ~= "table" or self.BorderTextures or not self.CreateTexture then return end
+	if type(self) ~= "table" or type(rawget(self, 0)) ~= "userdata" or self.BorderTextures or not self.CreateTexture then return end
 
 	local t = { }
 	self.BorderTextures = t
@@ -368,6 +368,8 @@ _G.PhanxBorder = {
 	SetShadowColor = SetShadowColor,
 	GetShadowSize  = GetShadowSize,
 	SetShadowSize  = SetShadowSize,
+	FramesWithBorders = borderedFrames,
+	FramesWithShadows = shadowedFrames,
 }
 
 ------------------------------------------------------------------------

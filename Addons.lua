@@ -307,11 +307,11 @@ end)
 --	CoolLine
 ------------------------------------------------------------------------
 
+--[[
 tinsert(applyFuncs, function()
 	if CoolLine then
 		-- print("Adding border to CoolLine")
 		AddBorder(CoolLine)
---[[
 		function CoolLine_AddBorders()
 			-- print("Adding border to CoolLine icons")
 			for i = 1, CoolLine.border:GetNumChildren() do
@@ -332,10 +332,10 @@ tinsert(applyFuncs, function()
 				CoolLine_AddBorders()
 			end
 		end
-]]
 		return true
 	end
 end)
+]]
 
 ------------------------------------------------------------------------
 --	DockingStation

@@ -126,6 +126,8 @@ table.insert(applyFuncs, function()
 		AddBorder(_G[f])
 	end
 
+	Minimap:SetBorderSize(14) -- looks funny rescaled so small
+
 	GhostFrameLeft:Hide()
 	GhostFrameMiddle:Hide()
 	GhostFrameRight:Hide()
