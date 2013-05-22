@@ -159,10 +159,12 @@ tinsert(applyFuncs, function()
 		ArchyDistanceIndicatorFrameCrateButton:SetNormalTexture(nil)
 
 		ArchyArtifactFrame:HookScript("OnShow", function(f)
-			f.skillBar:SetStatusBarTexture(f.children[1].fragmentBar:GetStatusBarTexture():GetTexture())
-			for i = 1, #f.children do
-				f.children[i].fragmentBar.artifact:SetFontObject(GameFontHighlightSmall)
-				f.children[i].fragmentBar.fragments:SetFontObject(GameFontHighlightSmall)
+			if f.skillBar then
+				f.skillBar:SetStatusBarTexture(f.children[1].fragmentBar:GetStatusBarTexture():GetTexture())
+				for i = 1, #f.children do
+					f.children[i].fragmentBar.artifact:SetFontObject(GameFontHighlightSmall)
+					f.children[i].fragmentBar.fragments:SetFontObject(GameFontHighlightSmall)
+				end
 			end
 		end)
 
