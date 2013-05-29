@@ -18,8 +18,8 @@ local SHADOW_TEXTURE = [[Interface\AddOns\PhanxBorder\Textures\GlowOuter]]
 --	GTFO.
 ------------------------------------------------------------------------
 
-local AddBorder, GetBorderAlpha, SetBorderAlpha, GetBorderColor, SetBorderColor, GetBorderSize, SetBorderSize
-local AddShadow, GetShadowAlpha, SetShadowAlpha, GetShadowColor, SetShadowColor, GetShadowSize, SetShadowSize
+local AddBorder, GetBorderAlpha, SetBorderAlpha, GetBorderColor, SetBorderColor, GetBorderLayer, SetBorderLayer, GetBorderParent, SetBorderParent, GetBorderSize, SetBorderSize
+local AddShadow, GetShadowAlpha, SetShadowAlpha, GetShadowColor, SetShadowColor, GetShadowLayer, SetShadowLayer, GetShadowParent, SetShadowParent, GetShadowSize, SetShadowSize
 local noop = function() end
 
 ------------------------------------------------------------------------
@@ -56,6 +56,38 @@ end
 function GetBorderColor(self)
 	if not self or type(self) ~= "table" or not self.BorderTextures then return end
 	return self.BorderTextures[1]:GetVertexColor()
+end
+
+------------------------------------------------------------------------
+
+function SetBorderLayer(self, layer)
+	if not self or type(self) ~= "table" or not self.BorderTextures then return end
+	if not layer then layer = "OVERLAY" end
+
+	for i, tex in ipairs(self.BorderTextures) do
+		tex:SetDrawLayer(layer)
+	end
+end
+
+function GetBorderLayer(self)
+	if not self or type(self) ~= "table" or not self.BorderTextures then return end
+	return self.BorderTextures[1]:GetDrawLayer()
+end
+
+------------------------------------------------------------------------
+
+function SetBorderParent(self, parent)
+	if not self or type(self) ~= "table" or not self.BorderTextures then return end
+	if not parent then parent = self end
+
+	for i, tex in ipairs(self.BorderTextures) do
+		tex:SetParent(parent)
+	end
+end
+
+function GetBorderParent(self)
+	if not self or type(self) ~= "table" or not self.BorderTextures then return end
+	return self.BorderTextures[1]:GetParent()
 end
 
 ------------------------------------------------------------------------
@@ -195,6 +227,12 @@ function AddBorder(self, size, offset, force, shadow)
 
 	self.GetBorderColor = GetBorderColor
 	self.SetBorderColor = SetBorderColor
+
+	self.GetBorderLayer = GetBorderLayer
+	self.SetBorderLayer = SetBorderLayer
+
+	self.GetBorderParent = GetBorderParent
+	self.SetBorderParent = SetBorderParent
 
 	self.GetBorderSize  = GetBorderSize
 	self.SetBorderSize  = SetBorderSize
