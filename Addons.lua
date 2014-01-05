@@ -11,6 +11,7 @@ local AddShadow = PhanxBorder.AddShadow
 local Masque = select(4, GetAddOnInfo("Masque"))
 
 local COLOR_BY_CLASS = true
+local BAR_TEXTURE = "Interface\\AddOns\\PhanxMedia\\statusbar\\Neal"
 
 ------------------------------------------------------------------------
 --	Addon frames
@@ -22,8 +23,6 @@ local applyFuncs = { }
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:SetScript("OnEvent", function(self, event)
 	for i, func in pairs(applyFuncs) do
 		if func() then
@@ -34,6 +33,9 @@ eventFrame:SetScript("OnEvent", function(self, event)
 		self:UnregisterAllEvents()
 		self:SetScript("OnEvent", nil)
 		applyFuncs = nil
+	elseif event == "PLAYER_LOGIN" then
+		self:RegisterEvent("ADDON_LOADED")
+		self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	end
 end)
 
@@ -246,9 +248,11 @@ end)
 tinsert(applyFuncs, function()
 	if Bazooka and Bazooka.bars and #Bazooka.bars > 0 then
 		-- print("Adding border to Bazooka")
-		local color = COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
+		local color = false -- COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
 		for i, bar in ipairs(Bazooka.bars) do
 			AddBorder(bar.frame, nil, nil, nil, true)
+			bar.frame:SetBorderSize(14, 7)
+			bar.frame:SetShadowAlpha(0.25)
 			Bazooka.db.profile.bars[i].bgBorderTexture = "None"
 			if color then
 				Bazooka.db.profile.bars[i].bgBorderColor.r = color.r
@@ -306,14 +310,26 @@ tinsert(applyFuncs, function()
 end)
 
 ------------------------------------------------------------------------
---	CoolLine
+--	Clique
 ------------------------------------------------------------------------
 
+tinsert(applyFuncs, function()
+	if CliqueSpellTab then
+		AddBorder(CliqueSpellTab)
+		return true
+	end
+end)
+
+------------------------------------------------------------------------
+--	CoolLine
+------------------------------------------------------------------------
 --[[
 tinsert(applyFuncs, function()
 	if CoolLine then
 		-- print("Adding border to CoolLine")
 		AddBorder(CoolLine)
+		CoolLine:SetBorderSize(nil, 6)
+
 		function CoolLine_AddBorders()
 			-- print("Adding border to CoolLine icons")
 			for i = 1, CoolLine.border:GetNumChildren() do
@@ -338,7 +354,6 @@ tinsert(applyFuncs, function()
 	end
 end)
 ]]
-
 ------------------------------------------------------------------------
 --	DockingStation
 ------------------------------------------------------------------------
@@ -432,13 +447,35 @@ end)
 ------------------------------------------------------------------------
 --	InFlight
 ------------------------------------------------------------------------
-
+--[[
 tinsert(applyFuncs, function()
 	if InFlight and InFlight.CreateBar then
 		hooksecurefunc(InFlight, "CreateBar", function()
 			-- print("Adding border to InFlight")
 			AddBorder(InFlightBar)
 		end)
+		return true
+	end
+end)
+]]
+------------------------------------------------------------------------
+--	LauncherMenu
+------------------------------------------------------------------------
+
+tinsert(applyFuncs, function()
+	local dataobj = LibStub and LibStub("LibDataBroker-1.1", true) and LibStub("LibDataBroker-1.1"):GetDataObjectByName("LauncherMenu")
+	if dataobj then
+		local OnClick = dataobj.OnClick
+		dataobj.OnClick = function(frame)
+			OnClick(frame)
+			dataobj.OnClick = OnClick
+			for i = 1, UIParent:GetNumChildren() do
+				local f = select(i, UIParent:GetChildren())
+				if f.anchorFrame == frame then
+					AddBorder(f)
+				end
+			end
+		end
 		return true
 	end
 end)
@@ -474,9 +511,111 @@ tinsert(applyFuncs, function()
 end)
 
 ------------------------------------------------------------------------
---	TomTom
+--	PetJournalEnhanced
 ------------------------------------------------------------------------
 
+tinsert(applyFuncs, function()
+	local PetJournalEnhanced = LibStub and LibStub("AceAddon-3.0", true) and LibStub("AceAddon-3.0"):GetAddon("PetJournalEnhanced", true)
+	if not PetJournalEnhanced then return end
+
+	for i = 1, #PetJournalEnhancedListScrollFrame.buttons do
+		local button = PetJournalEnhancedListScrollFrame.buttons[i]
+		AddBorder(button.dragButton, nil, 4)
+	end
+
+	local PetList = PetJournalEnhanced:GetModule("PetList")
+	local Sorting = PetJournalEnhanced:GetModule("Sorting")
+
+	hooksecurefunc(PetList, "PetJournal_UpdatePetList", function()
+		local scrollFrame = PetList.listScroll
+		local buttons = scrollFrame.buttons
+		local offset = HybridScrollFrame_GetOffset(scrollFrame)
+		local isWild = PetJournal.isWild
+		for i = 1, #buttons do
+			local button = buttons[i]
+			local index = offset + i
+			if index <= Sorting:GetNumPets() then
+				local mappedPet = Sorting:GetPetByIndex(index)
+				local petID, _, isOwned, _, _, _, _, name, _, _, _, _, _, _, canBattle = C_PetJournal.GetPetInfoByIndex(mappedPet.index, isWild)
+				local colored
+				if isOwned and canBattle then
+					local _, _, _, _, rarity = C_PetJournal.GetPetStats(petID)
+					if rarity and rarity > 2 then
+						local color = ITEM_QUALITY_COLORS[rarity - 1]
+						button.dragButton:SetBorderColor(color.r, color.g, color.b)
+						colored = true
+					end
+				end
+				if not colored then
+					button.dragButton:SetBorderColor()
+				end
+			end
+		end
+	end)
+
+	return true
+end)
+
+------------------------------------------------------------------------
+--	PetTracker
+------------------------------------------------------------------------
+
+tinsert(applyFuncs, function()
+	if PetTrackerProgressBar1 then
+		-- print("Adding borders to PetTracker_Broker")
+		PetTrackerProgressBar1:SetHeight(16)
+		AddBorder(PetTrackerProgressBar1.Overlay)
+		PetTrackerProgressBar1.Overlay:SetBorderSize(nil, 7)
+
+		local _, tracker = PetTrackerProgressBar1:GetChildren()
+		PetTrackerProgressBar1.Overlay.BorderLeft:Hide()
+		PetTrackerProgressBar1.Overlay.BorderRight:Hide()
+		PetTrackerProgressBar1.Overlay.BorderCenter:Hide()
+
+		for i = 1, PetTrackerProgressBar1:GetNumChildren() do
+			local child = select(i, PetTrackerProgressBar1:GetChildren())
+			if child:IsObjectType("StatusBar") then
+				local r, g, b = child:GetStatusBarColor()
+				child:SetStatusBarTexture(BAR_TEXTURE)
+				child:SetStatusBarColor(r, g, b)
+				child:SetAlpha(0.75)
+			end
+		end
+		return true
+	end
+end)
+
+------------------------------------------------------------------------
+--	PetTracker_Broker
+------------------------------------------------------------------------
+-- sowohl X als auch Y = X as well as Y, both X and Y
+-- sondern = but rather, "he is not old, but young", B negates A
+-- aber = but, "he is old, but handsome", B does not negate A
+tinsert(applyFuncs, function()
+	if PetTracker_BrokerTip then
+		-- print("Adding borders to PetTracker_Broker")
+		AddBorder(PetTracker_BrokerTip)
+		local _, tracker = PetTracker_BrokerTip:GetChildren()
+		tracker.Bar.Overlay.BorderLeft:Hide()
+		tracker.Bar.Overlay.BorderRight:Hide()
+		tracker.Bar.Overlay.BorderCenter:Hide()
+		for i = 1, tracker.Bar:GetNumChildren() do
+			local child = select(i, tracker.Bar:GetChildren())
+			if child:IsObjectType("StatusBar") then
+				local r, g, b = child:GetStatusBarColor()
+				child:SetStatusBarTexture(BAR_TEXTURE)
+				child:SetStatusBarColor(r, g, b)
+				child:SetAlpha(0.75)
+			end
+		end
+		return true
+	end
+end)
+
+------------------------------------------------------------------------
+--	QuestPointer
+------------------------------------------------------------------------
+--[[
 tinsert(applyFuncs, function()
 	if QuestPointerTooltip then
 		-- print("Adding border to QuestPointerTooltip")
@@ -484,7 +623,7 @@ tinsert(applyFuncs, function()
 		return true
 	end
 end)
-
+]]
 ------------------------------------------------------------------------
 --	SexyCooldown
 ------------------------------------------------------------------------

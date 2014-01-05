@@ -6,9 +6,9 @@
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
-local BORDER_SIZE = 12
+local BORDER_SIZE = 16
 local BORDER_COLOR = { 0.47, 0.47, 0.47, 1 }
-local BORDER_TEXTURE = [[Interface\AddOns\PhanxBorder\Textures\SimpleSquare]]
+local BORDER_TEXTURE = [[Interface\AddOns\PhanxBorder\Textures\Border]] -- SimpleSquare]]
 
 local SHADOW_SIZE = 1.5
 local SHADOW_COLOR = { 0, 0, 0, 1 }
@@ -30,8 +30,8 @@ function SetBorderAlpha(self, a)
 	if not self or type(self) ~= "table" or not self.BorderTextures then return end
 	if not a then a = 1 end
 
-	for i, tex in ipairs(self.BorderTextures) do
-		tex:SetAlpha(a)
+	for i = 1, #self.BorderTextures do
+		self.BorderTextures[i]:SetAlpha(a)
 	end
 end
 
@@ -45,11 +45,11 @@ end
 function SetBorderColor(self, r, g, b, a)
 	if not self or type(self) ~= "table" or not self.BorderTextures then return end
 	if not r or not g or not b or a == 0 then
-		r, g, b, a = unpack(BORDER_COLOR)
+		r, g, b, a = BORDER_COLOR[1], BORDER_COLOR[2], BORDER_COLOR[3], BORDER_COLOR[4]
 	end
 
-	for i, tex in ipairs(self.BorderTextures) do
-		tex:SetVertexColor(r, g, b)
+	for i = 1, #self.BorderTextures do
+		self.BorderTextures[i]:SetVertexColor(r, g, b)
 	end
 end
 
@@ -64,8 +64,8 @@ function SetBorderLayer(self, layer)
 	if not self or type(self) ~= "table" or not self.BorderTextures then return end
 	if not layer then layer = "OVERLAY" end
 
-	for i, tex in ipairs(self.BorderTextures) do
-		tex:SetDrawLayer(layer)
+	for i = 1, #self.BorderTextures do
+		self.BorderTextures[i]:SetDrawLayer(layer)
 	end
 end
 
@@ -80,8 +80,8 @@ function SetBorderParent(self, parent)
 	if not self or type(self) ~= "table" or not self.BorderTextures then return end
 	if not parent then parent = self end
 
-	for i, tex in ipairs(self.BorderTextures) do
-		tex:SetParent(parent)
+	for i = 1, #self.BorderTextures do
+		self.BorderTextures[i]:SetParent(parent)
 	end
 end
 
@@ -97,7 +97,6 @@ function SetBorderSize(self, size, offset)
 	if not size then
 		size = BORDER_SIZE
 	end
-
 	self.BorderSize = size
 
 	local scale = self:GetEffectiveScale() / UIParent:GetScale()
@@ -105,25 +104,19 @@ function SetBorderSize(self, size, offset)
 		size = size * (1 / scale)
 	end
 
-	local d = offset or (size * 0.5 - 2) -- floor(size * 0.25 + 0.5)
-
 	local t = self.BorderTextures
-
-	for i, tex in ipairs(t) do
-		tex:SetWidth(size)
-		tex:SetHeight(size)
+	for i = 1, #t do
+		t[i]:SetSize(size, size)
 	end
 
+	local d = offset or (size * 0.5 - 2) -- floor(size * 0.25 + 0.5)
 	t[1]:SetPoint("TOPLEFT", self, -d, d)
-
 	t[2]:SetPoint("TOPRIGHT", self, d, d)
-
-	t[3]:SetPoint("LEFT", t[1], "TOPRIGHT")
-	t[3]:SetPoint("TOPRIGHT", t[2], "TOPLEFT")
-
 	t[4]:SetPoint("BOTTOMLEFT", self, -d, -d)
-
 	t[5]:SetPoint("BOTTOMRIGHT", self, d, -d)
+
+	t[3]:SetPoint("TOPLEFT", t[1], "TOPRIGHT")
+	t[3]:SetPoint("TOPRIGHT", t[2], "TOPLEFT")
 
 	t[6]:SetPoint("BOTTOMLEFT", t[4], "BOTTOMRIGHT")
 	t[6]:SetPoint("BOTTOMRIGHT", t[5], "BOTTOMLEFT")
@@ -245,7 +238,7 @@ function AddBorder(self, size, offset, force, shadow)
 		AddShadow(self)
 	end
 
-	table.insert(borderedFrames, self)
+	tinsert(borderedFrames, self)
 end
 
 ------------------------------------------------------------------------
@@ -305,7 +298,7 @@ function AddShadow(self, size, offset)
 	SetShadowColor(self)
 	SetShadowSize(self, offset)
 
-	table.insert(shadowedFrames, self)
+	tinsert(shadowedFrames, self)
 end
 
 ------------------------------------------------------------------------
@@ -314,8 +307,8 @@ function SetShadowAlpha(self, a)
 	if not self or type(self) ~= "table" or not self.ShadowTextures then return end
 	if not a then a = 1 end
 
-	for i, tex in ipairs(self.ShadowTextures) do
-		tex:SetAlpha(a)
+	for i = 1, #self.ShadowTextures do
+		self.ShadowTextures[i]:SetAlpha(a)
 	end
 end
 
@@ -329,11 +322,11 @@ end
 function SetShadowColor(self, r, g, b, a)
 	if not self or type(self) ~= "table" or not self.ShadowTextures then return end
 	if not r or not g or not b or a == 0 then
-		r, g, b, a = unpack(SHADOW_COLOR)
+		r, g, b, a = SHADOW_COLOR[1], SHADOW_COLOR[2], SHADOW_COLOR[3], SHADOW_COLOR[4]
 	end
 
-	for i, tex in ipairs(self.ShadowTextures) do
-		tex:SetVertexColor(r, g, b)
+	for i = 1, #self.ShadowTextures do
+		self.ShadowTextures[i]:SetVertexColor(r, g, b)
 	end
 end
 
@@ -356,21 +349,18 @@ function SetShadowSize(self, size, offset)
 	local s = self.ShadowTextures
 	local t = self.BorderTextures
 
-	for i, tex in ipairs(s) do
-		tex:SetWidth(size)
-		tex:SetHeight(size)
+	for i = 1, #s do
+		s[i]:SetWidth(size)
+		s[i]:SetHeight(size)
 	end
 
 	s[1]:SetPoint("CENTER", t[1], -offset, offset) -- TOPLEFT
-
 	s[2]:SetPoint("CENTER", t[2], offset, offset) -- TOPRIGHT
+	s[4]:SetPoint("CENTER", t[4], -offset, -offset) -- BOTTOMLEFT
+	s[5]:SetPoint("CENTER", t[5], offset, -offset) -- BOTTOMRIGHT
 
 	s[3]:SetPoint("TOPLEFT", s[1], "TOPRIGHT") -- TOP
 	s[3]:SetPoint("TOPRIGHT", s[2], "TOPLEFT")
-
-	s[4]:SetPoint("CENTER", t[4], -offset, -offset) -- BOTTOMLEFT
-
-	s[5]:SetPoint("CENTER", t[5], offset, -offset) -- BOTTOMRIGHT
 
 	s[6]:SetPoint("BOTTOMLEFT", s[4], "BOTTOMRIGHT") -- BOTTOM
 	s[6]:SetPoint("BOTTOMRIGHT", s[5], "BOTTOMLEFT")
@@ -391,7 +381,7 @@ end
 --	GLOBAL
 ------------------------------------------------------------------------
 
-_G.PhanxBorder = {
+PhanxBorder = {
 	AddBorder = AddBorder,
 	AddShadow = AddShadow,
 	GetBorderAlpha = GetBorderAlpha,
@@ -406,8 +396,15 @@ _G.PhanxBorder = {
 	SetShadowColor = SetShadowColor,
 	GetShadowSize  = GetShadowSize,
 	SetShadowSize  = SetShadowSize,
-	FramesWithBorders = borderedFrames,
-	FramesWithShadows = shadowedFrames,
+	borderedFrames = borderedFrames,
+	shadowedFrames = shadowedFrames,
 }
+
+function PhanxBorder.DoAll(what, ...)
+	if not PhanxBorder[what] or not strmatch(what, "^Set") then return end
+	for i, frame in ipairs(PhanxBorder.borderedFrames) do
+		PhanxBorder[what](frame, ...)
+	end
+end
 
 ------------------------------------------------------------------------
