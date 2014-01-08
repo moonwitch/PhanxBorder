@@ -6,27 +6,22 @@
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
+local _, PhanxBorder = ...
+local _, _, _, Masque = GetAddOnInfo("Masque")
+
 local AddBorder = PhanxBorder.AddBorder
 local AddShadow = PhanxBorder.AddShadow
-local Masque = select(4, GetAddOnInfo("Masque"))
-
-local COLOR_BY_CLASS = true
-local BAR_TEXTURE = "Interface\\AddOns\\PhanxMedia\\statusbar\\Neal"
-
-------------------------------------------------------------------------
---	Addon frames
-------------------------------------------------------------------------
-
+local config = PhanxBorder.config
 local noop = function() end
 
-local applyFuncs = { }
+local applyFuncs = {}
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("ADDON_LOADED")
+eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:SetScript("OnEvent", function(self, event)
 	for i, func in pairs(applyFuncs) do
-		if func() then
-			applyFuncs[i] = nil
+		if applyFuncs[i]() then
+			tremove(applyFuncs, i)
 		end
 	end
 	if #applyFuncs == 0 then
@@ -227,13 +222,17 @@ end)
 tinsert(applyFuncs, function()
 	local o = Bagnon and Bagnon.Frame and Bagnon.Frame.New
 	if o then
-		-- print("Adding border to Bagnon")
+		--print("Adding border to Bagnon")
 		Bagnon.Frame.New = function(...)
 			local f = o(...)
+			--print("Adding border to", f:GetName())
 			AddBorder(f)
-			local color = COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
-			if color then
+			if config.useClassColor then
+				local _, class = UnitClass("player")
+				local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
 				f:GetSettings():SetBorderColor(color.r, color.g, color.b, 1)
+			else
+				f:GetSettings():SetBorderColor(f.BorderTextures.TOPLEFT:GetVertexColor())
 			end
 			return f
 		end
@@ -248,7 +247,7 @@ end)
 tinsert(applyFuncs, function()
 	if Bazooka and Bazooka.bars and #Bazooka.bars > 0 then
 		-- print("Adding border to Bazooka")
-		local color = false -- COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
+		local color = false -- config.useClassColor and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
 		for i, bar in ipairs(Bazooka.bars) do
 			AddBorder(bar.frame, nil, nil, nil, true)
 			bar.frame:SetBorderSize(14, 7)
@@ -289,11 +288,13 @@ end)
 tinsert(applyFuncs, function()
 	if Butsu then
 		AddBorder(Butsu)
-		local color = COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
+		--[[
+		local color = config.useClassColor and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
 		if color then
 			Butsu:SetBorderColor(color.r, color.g, color.b)
 			Butsu.title:SetTextColor(color.r, color.g, color.b)
 		end
+		]]
 		return true
 	end
 end)
@@ -323,13 +324,12 @@ end)
 ------------------------------------------------------------------------
 --	CoolLine
 ------------------------------------------------------------------------
---[[
 tinsert(applyFuncs, function()
 	if CoolLine then
 		-- print("Adding border to CoolLine")
 		AddBorder(CoolLine)
-		CoolLine:SetBorderSize(nil, 6)
-
+		CoolLine:SetBorderSize(nil, 7)
+--[[
 		function CoolLine_AddBorders()
 			-- print("Adding border to CoolLine icons")
 			for i = 1, CoolLine.border:GetNumChildren() do
@@ -350,10 +350,10 @@ tinsert(applyFuncs, function()
 				CoolLine_AddBorders()
 			end
 		end
+]]
 		return true
 	end
 end)
-]]
 ------------------------------------------------------------------------
 --	DockingStation
 ------------------------------------------------------------------------
@@ -439,7 +439,6 @@ tinsert(applyFuncs, function()
 			o(self, f)
 			Grid_AddBorder(f)
 		end
-
 		return true
 	end
 end)
@@ -469,10 +468,11 @@ tinsert(applyFuncs, function()
 		dataobj.OnClick = function(frame)
 			OnClick(frame)
 			dataobj.OnClick = OnClick
-			for i = 1, UIParent:GetNumChildren() do
+			for i = UIParent:GetNumChildren(), 1, -1 do -- go backwards since it's probably the last one
 				local f = select(i, UIParent:GetChildren())
 				if f.anchorFrame == frame then
 					AddBorder(f)
+					break
 				end
 			end
 		end
@@ -495,7 +495,7 @@ end)
 ------------------------------------------------------------------------
 --	PetBattleTeams
 ------------------------------------------------------------------------
-
+--[[
 tinsert(applyFuncs, function()
 	if PetBattleTeamsRosterFrame then
 		-- print("Adding borders to PetBattleTeams")
@@ -509,7 +509,7 @@ tinsert(applyFuncs, function()
 		return true
 	end
 end)
-
+]]
 ------------------------------------------------------------------------
 --	PetJournalEnhanced
 ------------------------------------------------------------------------
@@ -517,16 +517,13 @@ end)
 tinsert(applyFuncs, function()
 	local PetJournalEnhanced = LibStub and LibStub("AceAddon-3.0", true) and LibStub("AceAddon-3.0"):GetAddon("PetJournalEnhanced", true)
 	if not PetJournalEnhanced then return end
-
-	for i = 1, #PetJournalEnhancedListScrollFrame.buttons do
-		local button = PetJournalEnhancedListScrollFrame.buttons[i]
-		AddBorder(button.dragButton, nil, 4)
-	end
+	--print("Adding borders to PetJournalEnhanced")
 
 	local PetList = PetJournalEnhanced:GetModule("PetList")
 	local Sorting = PetJournalEnhanced:GetModule("Sorting")
 
-	hooksecurefunc(PetList, "PetJournal_UpdatePetList", function()
+	local function UpdatePetList()
+		--print("UpdatePetList")
 		local scrollFrame = PetList.listScroll
 		local buttons = scrollFrame.buttons
 		local offset = HybridScrollFrame_GetOffset(scrollFrame)
@@ -534,6 +531,7 @@ tinsert(applyFuncs, function()
 		for i = 1, #buttons do
 			local button = buttons[i]
 			local index = offset + i
+			AddBorder(button.dragButton, nil, 4)
 			if index <= Sorting:GetNumPets() then
 				local mappedPet = Sorting:GetPetByIndex(index)
 				local petID, _, isOwned, _, _, _, _, name, _, _, _, _, _, _, canBattle = C_PetJournal.GetPetInfoByIndex(mappedPet.index, isWild)
@@ -551,7 +549,10 @@ tinsert(applyFuncs, function()
 				end
 			end
 		end
-	end)
+	end
+
+	hooksecurefunc(PetList, "PetJournal_UpdatePetList", UpdatePetList)
+	hooksecurefunc(PetList.listScroll, "update", UpdatePetList)
 
 	return true
 end)
@@ -561,28 +562,50 @@ end)
 ------------------------------------------------------------------------
 
 tinsert(applyFuncs, function()
-	if PetTrackerProgressBar1 then
-		-- print("Adding borders to PetTracker_Broker")
-		PetTrackerProgressBar1:SetHeight(16)
-		AddBorder(PetTrackerProgressBar1.Overlay)
-		PetTrackerProgressBar1.Overlay:SetBorderSize(nil, 7)
+	if not PetTracker then return end
+	--print("Adding borders to PetTracker")
 
-		local _, tracker = PetTrackerProgressBar1:GetChildren()
-		PetTrackerProgressBar1.Overlay.BorderLeft:Hide()
-		PetTrackerProgressBar1.Overlay.BorderRight:Hide()
-		PetTrackerProgressBar1.Overlay.BorderCenter:Hide()
-
-		for i = 1, PetTrackerProgressBar1:GetNumChildren() do
-			local child = select(i, PetTrackerProgressBar1:GetChildren())
-			if child:IsObjectType("StatusBar") then
-				local r, g, b = child:GetStatusBarColor()
-				child:SetStatusBarTexture(BAR_TEXTURE)
-				child:SetStatusBarColor(r, g, b)
-				child:SetAlpha(0.75)
-			end
+	-- Add border to tracker bar
+	local bar = PetTracker.Objectives.Bar
+	bar:SetHeight(16)
+	bar.Overlay.BorderLeft:SetTexture("")
+	bar.Overlay.BorderRight:SetTexture("")
+	bar.Overlay.BorderCenter:SetTexture("")
+	AddBorder(bar.Overlay)
+	for i = 1, bar:GetNumChildren() do
+		local child = select(i, bar:GetChildren())
+		if child:IsObjectType("StatusBar") then
+			local r, g, b = child:GetStatusBarColor()
+			child:SetStatusBarTexture(config.statusbar)
+			child:SetStatusBarColor(r, g, b)
+			child:SetAlpha(0.75)
 		end
-		return true
 	end
+
+	-- Move enemy action buttons to micro button area
+	local EnemyActions = PetTracker.EnemyActions
+	local _, parent = EnemyActions:GetPoint(1)
+	EnemyActions:ClearAllPoints()
+	EnemyActions:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 32, -30)
+	for i = 1, EnemyActions:GetNumChildren() do
+		local button = select(i, EnemyActions:GetChildren())
+		AddBorder(button, nil, 4)
+	end
+
+	-- Remove the micro buttons from the pet battle UI
+	local okparents = {
+		BT4BarMicroMenu = true,
+		MainMenuBarArtFrame = true,
+	}
+	hooksecurefunc("UpdateMicroButtonsParent", function(parent)
+		--print("UpdateMicroButtonsParent", parentGetName() or UNKNOWN)
+		if InCombatLockdown() or okparents[parent and parent:GetName() or UNKNOWN] then
+			return
+		end
+		MainMenuBar:GetScript("OnShow")(MainMenuBar)
+	end)
+
+	return true
 end)
 
 ------------------------------------------------------------------------
@@ -592,24 +615,28 @@ end)
 -- sondern = but rather, "he is not old, but young", B negates A
 -- aber = but, "he is old, but handsome", B does not negate A
 tinsert(applyFuncs, function()
-	if PetTracker_BrokerTip then
-		-- print("Adding borders to PetTracker_Broker")
-		AddBorder(PetTracker_BrokerTip)
-		local _, tracker = PetTracker_BrokerTip:GetChildren()
-		tracker.Bar.Overlay.BorderLeft:Hide()
-		tracker.Bar.Overlay.BorderRight:Hide()
-		tracker.Bar.Overlay.BorderCenter:Hide()
-		for i = 1, tracker.Bar:GetNumChildren() do
-			local child = select(i, tracker.Bar:GetChildren())
-			if child:IsObjectType("StatusBar") then
-				local r, g, b = child:GetStatusBarColor()
-				child:SetStatusBarTexture(BAR_TEXTURE)
-				child:SetStatusBarColor(r, g, b)
-				child:SetAlpha(0.75)
-			end
+	if not PetTracker_BrokerTip then return end
+
+	-- print("Adding borders to PetTracker_Broker")
+	AddBorder(PetTracker_BrokerTip)
+
+	local bar = select(2, PetTracker_BrokerTip:GetChildren()).Bar
+	bar.Overlay.BorderLeft:SetTexture("")
+	bar.Overlay.BorderRight:SetTexture("")
+	bar.Overlay.BorderCenter:SetTexture("")
+	AddBorder(bar.Overlay, 12, 4)
+
+	for i = 1, bar:GetNumChildren() do
+		local child = select(i, bar:GetChildren())
+		if child:IsObjectType("StatusBar") then
+			local r, g, b = child:GetStatusBarColor()
+			child:SetStatusBarTexture(config.statusbar)
+			child:SetStatusBarColor(r, g, b)
+			child:SetAlpha(0.75)
 		end
-		return true
 	end
+
+	return true
 end)
 
 ------------------------------------------------------------------------
@@ -631,7 +658,7 @@ end)
 tinsert(applyFuncs, function()
 	if SexyCooldown and SexyCooldown.bars then
 		-- print("Adding borders to SexyCooldown")
-		local color = COLOR_BY_CLASS and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
+		local color = config.useClassColor and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
 		for i, bar in ipairs(SexyCooldown.bars) do
 			AddBorder(bar)
 			if color then
@@ -658,6 +685,63 @@ tinsert(applyFuncs, function()
 		AddBorder(TomTomTooltip)
 		return true
 	end
+end)
+
+------------------------------------------------------------------------
+--	Touhin
+------------------------------------------------------------------------
+
+tinsert(applyFuncs, function()
+	local Touhin = LibStub and LibStub("AceAddon-3.0", true) and LibStub("AceAddon-3.0"):GetAddon("Touhin", true)
+	if not Touhin then return end
+
+	local origSetRow = {}
+
+	local function SetRow(self, icon, color, text, hightlightColor)
+		if icon then
+			origSetRow[self](self, icon, color, text, hightlightColor)
+		end
+
+		Touhin.db.profile.edgeFile = "None"
+		Touhin.db.profile.insets = 0
+
+		self:SetBackdrop(nil)
+
+		self.background:ClearAllPoints()
+		self.background:SetAllPoints(true)
+		local r, g, b = self.background:GetVertexColor()
+		self.background:SetVertexColor(r, g, b, 1)
+
+		self.iconFrame:ClearAllPoints()
+		self.iconFrame:SetPoint("LEFT", 0, 0)
+
+		self.icon:ClearAllPoints()
+		self.icon:SetAllPoints(self.iconFrame)
+
+		PhanxBorder.AddBorder(self)
+		if icon and not highlightColor then
+			self:SetBorderColor()
+		end
+	end
+
+	local function ProcessorigSetRow()
+		local f = EnumerateFrames()
+		while f do
+			if (not f.IsForbidden or not f:IsForbidden()) and f:GetParent() == UIParent and not f:GetName() and f.background and f.iconFrame and f.icon and f.rollIcon and f.text and f.fader and f.SetRow then
+				if not origSetRow[f] then
+					print("Adding border to new Touhin frame.")
+					origSetRow[f] = f.SetRow
+					f.SetRow = SetRow
+					SetRow(f)
+				end
+			end
+			f = EnumerateFrames(f)
+		end
+	end
+
+	hooksecurefunc(Touhin, "AddCoin", ProcessorigSetRow)
+	hooksecurefunc(Touhin, "AddCurrency", ProcessorigSetRow)
+	hooksecurefunc(Touhin, "AddLoot", ProcessorigSetRow)
 end)
 
 ------------------------------------------------------------------------
