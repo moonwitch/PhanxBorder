@@ -6,11 +6,11 @@
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
-local _, PhanxBorder = ...
+local ADDON, Addon = ...
 local _, _, _, Masque = GetAddOnInfo("Masque")
-local AddBorder = PhanxBorder.AddBorder
-local AddShadow = PhanxBorder.AddShadow
-local config = PhanxBorder.config
+local AddBorder = Addon.AddBorder
+local AddShadow = Addon.AddShadow
+local config = Addon.config
 local noop = function() end
 
 local applyFuncs = { }
@@ -176,7 +176,7 @@ tinsert(applyFuncs, function()
 		"CharacterMainHandSlot",
 		"CharacterSecondaryHandSlot",
 	}) do
-		PhanxBorder.AddBorder(_G[slot], nil, 5)
+		Addon.AddBorder(_G[slot], nil, 5)
 		_G[slot.."Frame"]:SetTexture("")
 	end
 
@@ -186,23 +186,15 @@ tinsert(applyFuncs, function()
 	hooksecurefunc("PaperDollItemSlotButton_Update", function(self)
 		if not self.BorderTextures then return end
 
-		if not self.levelText then
-			self.levelText = self:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
-			self.levelText:SetPoint("BOTTOMRIGHT")
-		end
-
-		local id = GetInventoryItemID("player", self:GetID())
-		if id then
-			local _, _, rarity, level = GetItemInfo(id)
-			self.levelText:SetText(level or "")
+		local item = GetInventoryItemID("player", self:GetID())
+		if item then
+			local _, _, rarity, level = GetItemInfo(item)
 			if rarity > 1 then
 				local color = ITEM_QUALITY_COLORS[rarity]
-				self.levelText:SetTextColor(color.r, color.g, color.b)
 				return self:SetBorderColor(color.r, color.g, color.b)
 			end
 		end
 
-		self.levelText:SetText("")
 		self:SetBorderColor()
 	end)
 
@@ -380,13 +372,15 @@ tinsert(applyFuncs, function()
 	for i = 1, SPELLS_PER_PAGE do
 		local button = _G["SpellButton" .. i]
 		AddBorder(button)
-		button.SpellName:SetFont(config.font, 16)
 		button.EmptySlot:SetTexture("")
 		button.UnlearnedFrame:SetTexture("")
 		_G["SpellButton" .. i .. "SlotFrame"]:SetTexture("") -- swirly thing
 		_G["SpellButton" .. i .. "IconTexture"]:SetTexCoord(0.06, 0.94, 0.06, 0.94)
 		button:HookScript("OnDisable", Button_OnDisable)
 		button:HookScript("OnEnable", Button_OnEnable)
+		if config.isPhanx then
+			button.SpellName:SetFont(config.font, 16)
+		end
 	end
 
 	hooksecurefunc("SpellBook_UpdateCoreAbilitiesTab", function()
@@ -395,11 +389,13 @@ tinsert(applyFuncs, function()
 			if not button.BorderTextures then
 				AddBorder(button)
 				button.iconTexture:SetTexCoord(0.05, 0.95, 0.05, 0.95)
-				button.Name:SetFont(config.font, 16)
 				button.FutureTexture:SetTexture("")
 				select(3, button:GetRegions()):SetTexture("") -- swirly thing
 				local a, b, c, x, y = button.Name:GetPoint(1)
 				button.Name:SetPoint(a, b, c, x, 3)
+				if config.isPhanx then
+					button.Name:SetFont(config.font, 16)
+				end
 			end
 		end
 	end)

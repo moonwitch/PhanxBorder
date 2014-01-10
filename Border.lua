@@ -6,7 +6,10 @@
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
-local PHANXBORDER, PhanxBorder = ...
+local ADDON, Addon = ...
+_G[ADDON] = Addon
+
+local isPhanx = select(6, GetAddOnInfo("PhanxMedia")) ~= "MISSING"
 
 local config = {
 	border = {
@@ -19,9 +22,10 @@ local config = {
 		color = { r = 0, g = 0, b = 0, a = 1 },
 		size = 1.5,
 	},
-	font = oUFPhanxConfig and oUFPhanxConfig.font or [[Interface\AddOns\PhanxMedia\font\DejaWeb-Bold.ttf]],
-	statusbar = oUFPhanxConfig and oUFPhanxConfig.statusbar or [[Interface\AddOns\PhanxMedia\statusbar\BlizzStone2]],
+	font = oUFPhanxConfig and oUFPhanxConfig.font or isPhanx and [[Interface\AddOns\PhanxMedia\font\DejaWeb-Bold.ttf]] or [[Fonts\FRIZQT__.ttf]],
+	statusbar = oUFPhanxConfig and oUFPhanxConfig.statusbar or isPhanx and [[Interface\AddOns\PhanxMedia\statusbar\BlizzStone2]] or [[Interface\TargetingFrame\UI-StatusBar]],
 	useClassColor = true,
+	isPhanx = isPhanx,
 }
 
 ------------------------------------------------------------------------
@@ -41,7 +45,7 @@ local function ScaleBorder(self, scale)
 	return self:SetBorderSize(self.BorderSize)
 end
 
-function PhanxBorder.AddBorder(self, size, offset, blockChanges, shadow)
+function Addon.AddBorder(self, size, offset, blockChanges, shadow)
 	assert(type(self) == "table", "AddBorder: 'self' is not a table!")
 	assert(type(rawget(self, 0)) == "userdata", "AddBorder: 'self' is not a valid frame!")
 	assert(type(self.CreateTexture) == "function", "AddBorder: 'self' is missing a 'CreateTexture' method!")
@@ -88,7 +92,7 @@ function PhanxBorder.AddBorder(self, size, offset, blockChanges, shadow)
 			self.SetBackdropColor = noop
 			self.SetBackdropBorderColor = noop
 		else
-			self.SetBackdropBorderColor = PhanxBorder.SetBorderColor
+			self.SetBackdropBorderColor = Addon.SetBorderColor
 		end
 	end
 
@@ -99,27 +103,27 @@ function PhanxBorder.AddBorder(self, size, offset, blockChanges, shadow)
 		end
 	end
 
-	self.GetBorderAlpha  = PhanxBorder.GetBorderAlpha
-	self.SetBorderAlpha  = PhanxBorder.SetBorderAlpha
+	self.GetBorderAlpha  = Addon.GetBorderAlpha
+	self.SetBorderAlpha  = Addon.SetBorderAlpha
 
-	self.GetBorderColor  = PhanxBorder.GetBorderColor
-	self.SetBorderColor  = PhanxBorder.SetBorderColor
+	self.GetBorderColor  = Addon.GetBorderColor
+	self.SetBorderColor  = Addon.SetBorderColor
 
-	self.GetBorderLayer  = PhanxBorder.GetBorderLayer
-	self.SetBorderLayer  = PhanxBorder.SetBorderLayer
+	self.GetBorderLayer  = Addon.GetBorderLayer
+	self.SetBorderLayer  = Addon.SetBorderLayer
 
-	self.GetBorderParent = PhanxBorder.GetBorderParent
-	self.SetBorderParent = PhanxBorder.SetBorderParent
+	self.GetBorderParent = Addon.GetBorderParent
+	self.SetBorderParent = Addon.SetBorderParent
 
-	self.GetBorderSize   = PhanxBorder.GetBorderSize
-	self.SetBorderSize   = PhanxBorder.SetBorderSize
+	self.GetBorderSize   = Addon.GetBorderSize
+	self.SetBorderSize   = Addon.SetBorderSize
 
 	if self.SetScale then
 		hooksecurefunc(self, "SetScale", ScaleBorder)
 	end
 
 	if shadow then
-		PhanxBorder.AddShadow(self)
+		Addon.AddShadow(self)
 	end
 
 	tinsert(borderedFrames, self)
@@ -130,7 +134,7 @@ end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.SetBorderAlpha(self, a)
+function Addon.SetBorderAlpha(self, a)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	if not a then
 		a = config.border.color.a
@@ -140,14 +144,14 @@ function PhanxBorder.SetBorderAlpha(self, a)
 	end
 end
 
-function PhanxBorder.GetBorderAlpha(self)
+function Addon.GetBorderAlpha(self)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	return self.BorderTextures.TOPLEFT:GetAlpha()
 end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.SetBorderColor(self, r, g, b)
+function Addon.SetBorderColor(self, r, g, b)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	if not r or not g or not b then
 		r, g, b = config.border.color.r, config.border.color.g, config.border.color.b
@@ -157,7 +161,7 @@ function PhanxBorder.SetBorderColor(self, r, g, b)
 	end
 end
 
-function PhanxBorder.GetBorderColor(self)
+function Addon.GetBorderColor(self)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	local r, g, b = self.BorderTextures.TOPLEFT:GetVertexColor()
 	return r, g, b
@@ -165,7 +169,7 @@ end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.SetBorderLayer(self, layer)
+function Addon.SetBorderLayer(self, layer)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	if not layer then
 		layer = "OVERLAY"
@@ -175,14 +179,14 @@ function PhanxBorder.SetBorderLayer(self, layer)
 	end
 end
 
-function PhanxBorder.GetBorderLayer(self)
+function Addon.GetBorderLayer(self)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	return self.BorderTextures.TOPLEFT:GetDrawLayer()
 end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.SetBorderParent(self, parent)
+function Addon.SetBorderParent(self, parent)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	if not parent then
 		parent = self
@@ -192,14 +196,14 @@ function PhanxBorder.SetBorderParent(self, parent)
 	end
 end
 
-function PhanxBorder.GetBorderParent(self)
+function Addon.GetBorderParent(self)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	return self.BorderTextures.TOPLEFT:GetParent()
 end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.SetBorderSize(self, size, dL, dR, dT, dB)
+function Addon.SetBorderSize(self, size, dL, dR, dT, dB)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	if not size then
 		size = config.border.size
@@ -239,14 +243,14 @@ function PhanxBorder.SetBorderSize(self, size, dL, dR, dT, dB)
 	t.RIGHT:SetPoint("BOTTOMRIGHT", t.BOTTOMRIGHT, "TOPRIGHT")
 end
 
-function PhanxBorder.GetBorderSize(self)
+function Addon.GetBorderSize(self)
 	if type(self) ~= "table" or not self.BorderTextures then return end
 	return self.BorderSize or config.border.size
 end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.WithBorder(self, method, ...)
+function Addon.WithBorder(self, method, ...)
 	for i = 1, #points do
 		local tex = self.BorderTextures[points[i]]
 		local ret = tex[method](tex, ...)
@@ -262,7 +266,7 @@ end
 
 local shadowedFrames = {}
 
-function PhanxBorder.AddShadow(self, size, offset)
+function Addon.AddShadow(self, size, offset)
 	if type(self) ~= "table"
 	or type(rawget(self, 0)) ~= "userdata"
 	or (type(self.IsForbidden) == "function" and self:IsForbidden())
@@ -270,7 +274,7 @@ function PhanxBorder.AddShadow(self, size, offset)
 	or self.ShadowTextures then return end
 
 	if not self.BorderTextures then
-		PhanxBorder.AddBorder(self)
+		Addon.AddBorder(self)
 	end
 
 	local s = {}
@@ -310,7 +314,7 @@ end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.SetShadowAlpha(self, a)
+function Addon.SetShadowAlpha(self, a)
 	if type(self) ~= "table" or not self.ShadowTextures then return end
 	if not a then
 		a = 1
@@ -320,14 +324,14 @@ function PhanxBorder.SetShadowAlpha(self, a)
 	end
 end
 
-function PhanxBorder.GetShadowAlpha(self)
+function Addon.GetShadowAlpha(self)
 	if type(self) ~= "table" or not self.ShadowTextures then return end
 	return self.ShadowTextures.TOPLEFT:GetAlpha()
 end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.SetShadowColor(self, r, g, b, a)
+function Addon.SetShadowColor(self, r, g, b, a)
 	if type(self) ~= "table" or not self.ShadowTextures then return end
 	if not r or not g or not b or a == 0 then
 		r, g, b, a = config.shadow.color.r, config.shadow.color.g, config.shadow.color.b, config.shadow.color.a
@@ -338,14 +342,14 @@ function PhanxBorder.SetShadowColor(self, r, g, b, a)
 	end
 end
 
-function PhanxBorder.GetShadowColor(self)
+function Addon.GetShadowColor(self)
 	if type(self) ~= "table" or not self.ShadowTextures then return end
 	return self.ShadowTextures.TOPLEFT:GetVertexColor()
 end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.SetShadowSize(self, size, offset)
+function Addon.SetShadowSize(self, size, offset)
 	if type(self) ~= "table" or not self.ShadowTextures then return end
 	if not size then
 		size = config.border.size * config.shadow.size
@@ -380,14 +384,14 @@ function PhanxBorder.SetShadowSize(self, size, offset)
 	s.RIGHT:SetPoint("BOTTOMRIGHT", s.BOTTOMRIGHT, "TOPRIGHT")
 end
 
-function PhanxBorder.GetShadowSize(self)
+function Addon.GetShadowSize(self)
 	if type(self) ~= "table" or not self.ShadowTextures then return end
 	return self.ShadowTextures.TOPLEFT:GetWidth()
 end
 
 ------------------------------------------------------------------------
 
-function PhanxBorder.WithShadow(self, method, ...)
+function Addon.WithShadow(self, method, ...)
 	for i = 1, #points do
 		local tex = self.ShadowTextures[points[i]]
 		local ret = tex[method](tex, ...)
@@ -401,8 +405,8 @@ end
 --	GLOBALIZATION
 ------------------------------------------------------------------------
 
-function PhanxBorder.WithAllBorders(what, ...)
-	local func = PhanxBorder[what]
+function Addon.WithAllBorders(what, ...)
+	local func = Addon[what]
 	if type(func) == "function" then
 		for i = 1, #borderedFrames do
 			func(borderedFrames[i], ...)
@@ -410,8 +414,8 @@ function PhanxBorder.WithAllBorders(what, ...)
 	end
 end
 
-function PhanxBorder.WithAllShadows(what, ...)
-	local func = PhanxBorder[what]
+function Addon.WithAllShadows(what, ...)
+	local func = Addon[what]
 	if type(func) == "function" then
 		for i = 1, #shadowedFrames do
 			func(shadowedFrames[i], ...)
@@ -419,7 +423,6 @@ function PhanxBorder.WithAllShadows(what, ...)
 	end
 end
 
-PhanxBorder.config = config
-_G[PHANXBORDER] = PhanxBorder
+Addon.config = config
 
 ------------------------------------------------------------------------

@@ -13,3 +13,5 @@ Border.lua
 
 Blizzard.lua
 Addons.lua
+
+# Blizzard-Panels.lua

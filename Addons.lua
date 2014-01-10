@@ -220,24 +220,41 @@ end)
 ------------------------------------------------------------------------
 
 tinsert(applyFuncs, function()
-	local o = Bagnon and Bagnon.Frame and Bagnon.Frame.New
-	if o then
-		--print("Adding border to Bagnon")
-		Bagnon.Frame.New = function(...)
-			local f = o(...)
-			--print("Adding border to", f:GetName())
-			AddBorder(f)
-			if config.useClassColor then
-				local _, class = UnitClass("player")
-				local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
-				f:GetSettings():SetBorderColor(color.r, color.g, color.b, 1)
-			else
-				f:GetSettings():SetBorderColor(f.BorderTextures.TOPLEFT:GetVertexColor())
-			end
-			return f
-		end
-		return true
+	if not Bagnon then return end
+
+	local function MoveFrames()
+		local inventory = Bagnon.frames.inventory
+		if not inventory then return end
+		--print("Moving inventory frame...")
+		inventory:ClearAllPoints()
+		inventory:SetPoint("TOPRIGHT", Minimap, "BOTTOMRIGHT", 0, -15)
+		inventory.titleFrame:StopMovingFrame()
+
+		local bank = Bagnon.frames.bank
+		if not bank then return end
+		--print("Moving bank frame...")
+		bank:ClearAllPoints()
+		bank:SetPoint("TOPRIGHT", inventory, "TOPLEFT", -15, 0)
+		bank.titleFrame:StopMovingFrame()
 	end
+
+	hooksecurefunc(Bagnon, "CreateFrame", function(Bagnon, id)
+		--print("Adding border to Bagnon", id, "frame")
+		local f = Bagnon.frames[id]
+		AddBorder(f)
+		if config.useClassColor then
+			local _, class = UnitClass("player")
+			local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
+			f:GetSettings():SetBorderColor(color.r, color.g, color.b, 1)
+		else
+			f:GetSettings():SetBorderColor(f.BorderTextures.TOPLEFT:GetVertexColor())
+		end
+		if config.isPhanx then
+			f:HookScript("OnShow", MoveFrames)
+		end
+	end)
+
+	return true
 end)
 
 ------------------------------------------------------------------------
@@ -572,13 +589,15 @@ tinsert(applyFuncs, function()
 	bar.Overlay.BorderRight:SetTexture("")
 	bar.Overlay.BorderCenter:SetTexture("")
 	AddBorder(bar.Overlay)
-	for i = 1, bar:GetNumChildren() do
-		local child = select(i, bar:GetChildren())
-		if child:IsObjectType("StatusBar") then
-			local r, g, b = child:GetStatusBarColor()
-			child:SetStatusBarTexture(config.statusbar)
-			child:SetStatusBarColor(r, g, b)
-			child:SetAlpha(0.75)
+	if config.isPhanx then
+		for i = 1, bar:GetNumChildren() do
+			local child = select(i, bar:GetChildren())
+			if child:IsObjectType("StatusBar") then
+				local r, g, b = child:GetStatusBarColor()
+				child:SetStatusBarTexture(config.statusbar)
+				child:SetStatusBarColor(r, g, b)
+				child:SetAlpha(0.75)
+			end
 		end
 	end
 
@@ -626,13 +645,15 @@ tinsert(applyFuncs, function()
 	bar.Overlay.BorderCenter:SetTexture("")
 	AddBorder(bar.Overlay, 12, 4)
 
-	for i = 1, bar:GetNumChildren() do
-		local child = select(i, bar:GetChildren())
-		if child:IsObjectType("StatusBar") then
-			local r, g, b = child:GetStatusBarColor()
-			child:SetStatusBarTexture(config.statusbar)
-			child:SetStatusBarColor(r, g, b)
-			child:SetAlpha(0.75)
+	if config.isPhanx then
+		for i = 1, bar:GetNumChildren() do
+			local child = select(i, bar:GetChildren())
+			if child:IsObjectType("StatusBar") then
+				local r, g, b = child:GetStatusBarColor()
+				child:SetStatusBarTexture(config.statusbar)
+				child:SetStatusBarColor(r, g, b)
+				child:SetAlpha(0.75)
+			end
 		end
 	end
 
