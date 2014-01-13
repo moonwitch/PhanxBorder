@@ -353,22 +353,23 @@ end
 
 function Addon.SetShadowSize(self, size, dL, dR, dT, dB)
 	if type(self) ~= "table" or not self.ShadowTextures then return end
-	if not size then
-		size = config.border.size * config.shadow.size
-	end
 
 	local s = self.ShadowTextures
 	local t = self.BorderTextures
 
-	for i = 1, #s do
-		s[i]:SetWidth(size)
-		s[i]:SetHeight(size)
+	size = self:GetBorderSize() * (size or config.shadow.size)
+	print("SetShadowSize", self:GetName() or "<unnamed>", size, dL, dR, dT, dB)
+
+	for i = 1, #points do
+		local point = points[i]
+		s[point]:SetWidth(size)
+		s[point]:SetHeight(size)
 	end
 
-	dR = dR or dL or 0
-	dT = dT or dL or 0
-	dB = dB or dL or 0
-	dL = dL or 0 -- has to be last so it can be a fallback above
+	dR = 0 - (dR or dL or 0)
+	dT = 0 - (dT or dL or 0)
+	dB = 0 - (dB or dL or 0)
+	dL = 0 - (dL or 0) -- has to be last so it can be a fallback above
 
 	s.TOPLEFT:SetPoint("CENTER", t.TOPLEFT, -dL, dT)
 	s.TOPRIGHT:SetPoint("CENTER", t.TOPRIGHT, dR, dT)
