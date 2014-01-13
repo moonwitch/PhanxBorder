@@ -6,11 +6,11 @@
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
-local _, PhanxBorder = ...
+local _, Addon = ...
+local AddBorder = Addon.AddBorder
+local AddShadow = Addon.AddShadow
 local Masque = IsAddOnLoaded("Masque")
-local AddBorder = PhanxBorder.AddBorder
-local AddShadow = PhanxBorder.AddShadow
-local config = PhanxBorder.config
+local config = Addon.config
 local noop = function() end
 
 local applyFuncs = {}
@@ -247,32 +247,65 @@ tinsert(applyFuncs, function()
 		end
 	end)
 
+	local function ItemSlot_Update(button)
+		button:SetBorderSize() -- fixes scaling issues
+	end
+	local function ItemSlot_OnEnter(button)
+		Addon.ColorByClass(button)
+	end
+	local function ItemSlot_OnLeave(button)
+		button:UpdateBorder()
+	end
+
+	-- TODO: Something to prevent conflicts with Masque?
+	local ItemSlot_Create = Bagnon.ItemSlot.Create
+	function Bagnon.ItemSlot:Create()
+		local button = ItemSlot_Create(self)
+		AddBorder(button)
+		button:GetHighlightTexture():SetTexture("")
+		button.border.Show = button.border.Hide
+		hooksecurefunc(button, "HideBorder", button.SetBorderColor)
+		hooksecurefunc(button, "Update", ItemSlot_Update)
+		button:HookScript("OnEnter", ItemSlot_OnEnter)
+		button:HookScript("OnLeave", ItemSlot_OnLeave)
+		return button
+	end
+
 	return true
 end)
 
 ------------------------------------------------------------------------
 --	Bazooka
 ------------------------------------------------------------------------
---[[
+
 tinsert(applyFuncs, function()
 	if Bazooka and Bazooka.bars and #Bazooka.bars > 0 then
 		-- print("Adding border to Bazooka")
-		local color = false -- config.useClassColor and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
-		for i, bar in ipairs(Bazooka.bars) do
-			AddBorder(bar.frame, 14, 7, nil, true)
-			bar.frame:SetShadowAlpha(0.25)
-			Bazooka.db.profile.bars[i].bgBorderTexture = "None"
+		local color = config.useClassColor and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
+		for i = 1, #Bazooka.bars do
+			local bar = Bazooka.bars[i]
+			local db = Bazooka.db.profile.bars[i]
+
+			AddBorder(bar.frame, nil, nil, false, true)
+			bar.frame:SetShadowSize(2.5, 6)
+			bar.frame:SetShadowAlpha(0.5)
+
+			db.bgBorderInset = 0
+			db.bgBorderTexture = "None"
+			db.bgBorderColor.r = config.border.color.r
+			db.bgBorderColor.g = config.border.color.g
+			db.bgBorderColor.b = config.border.color.b
 			if color then
-				Bazooka.db.profile.bars[i].bgBorderColor.r = color.r
-				Bazooka.db.profile.bars[i].bgBorderColor.g = color.g
-				Bazooka.db.profile.bars[i].bgBorderColor.b = color.b
+				db.textColor.r = color.r
+				db.textColor.g = color.g
+				db.textColor.b = color.b
 			end
 			bar:applyBGSettings()
 		end
 		return true
 	end
 end)
-]]
+
 ------------------------------------------------------------------------
 --	BuffBroker
 ------------------------------------------------------------------------
@@ -730,7 +763,7 @@ tinsert(applyFuncs, function()
 		self.icon:ClearAllPoints()
 		self.icon:SetAllPoints(self.iconFrame)
 
-		PhanxBorder.AddBorder(self)
+		Addon.AddBorder(self)
 		if icon and not highlightColor then
 			self:SetBorderColor()
 		end
