@@ -235,7 +235,7 @@ tinsert(applyFuncs, function()
 		"CharacterMainHandSlot",
 		"CharacterSecondaryHandSlot",
 	}) do
-		AddBorder(_G[slot], nil, 1)
+		Addon.AddBorder(_G[slot], nil, 1)
 		_G[slot.."Frame"]:SetTexture("")
 	end
 
@@ -563,7 +563,6 @@ end)
 --	Blizzard_GuildBankUI
 ------------------------------------------------------------------------
 
-
 tinsert(applyFuncs, function()
 	if not GuildBankFrame then return end
 
@@ -579,6 +578,21 @@ tinsert(applyFuncs, function()
 			local link = GetGuildBankItemLink(tab, i)
 			ColorByItemQuality(button, nil, link)
 		end)
+
+	return true
+end)
+
+------------------------------------------------------------------------
+--	Blizzard_InspectUI
+------------------------------------------------------------------------
+-- TODO: test
+tinsert(applyFuncs, function()
+	if not InspectPaperDollItemSlotButton_Update then return end
+
+	hooksecurefunc("InspectPaperDollItemSlotButton_Update", function(button)
+		local item = GetInventoryItemID(InspectFrame.unit, button:GetID())
+		ColorByItemQuality(button, nil, item)
+	end)
 
 	return true
 end)
@@ -763,6 +777,23 @@ tinsert(applyFuncs, function()
 
 	hooksecurefunc("VoidStorage_ItemsUpdate", function(doDeposit, doContents)
 		if doDeposit then
+			for i = 1, VOID_DEPOSIT_MAX do
+				local button = _G["VoidStorageDepositButton"..i]
+				local item = GetVoidTransferDepositInfo(i)
+				ColorByItemQuality(button, nil, item)
+			end
+		end
+		if doContents then
+			for i = 1, VOID_WITHDRAW_MAX do
+				local button = _G["VoidStorageWithdrawButton"..i]
+				local item = GetVoidTransferWithdrawalInfo(i)
+				ColorByItemQuality(button, nil, item)
+			end
+			for i = 1, VOID_STORAGE_MAX do
+				local button = _G["VoidStorageStorageButton"..i]
+				local item = GetVoidItemInfo(i)
+				ColorByItemQuality(button, nil, item)
+			end
 		end
 	end)
 
