@@ -358,7 +358,6 @@ function Addon.SetShadowSize(self, size, dL, dR, dT, dB)
 	local t = self.BorderTextures
 
 	size = self:GetBorderSize() * (size or config.shadow.size)
-	print("SetShadowSize", self:GetName() or "<unnamed>", size, dL, dR, dT, dB)
 
 	for i = 1, #points do
 		local point = points[i]
