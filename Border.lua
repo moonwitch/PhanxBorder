@@ -45,7 +45,7 @@ local function ScaleBorder(self, scale)
 	return self:SetBorderSize(self.BorderSize)
 end
 
-function Addon.AddBorder(self, size, offset, blockChanges, shadow)
+function Addon.AddBorder(self, size, offset, forceBG, shadow)
 	assert(type(self) == "table", "AddBorder: 'self' is not a table!")
 	assert(type(rawget(self, 0)) == "userdata", "AddBorder: 'self' is not a valid frame!")
 	assert(type(self.CreateTexture) == "function", "AddBorder: 'self' is missing a 'CreateTexture' method!")
@@ -71,23 +71,25 @@ function Addon.AddBorder(self, size, offset, blockChanges, shadow)
 	t.LEFT:SetTexCoord(0, 1/3, 1/3, 2/3)
 
 	if self.SetBackdropBorderColor then
-		local a, backdrop = 0.8, self:GetBackdrop()
-		if type(backdrop) == "table" then
-			backdrop.edgeFile = nil
-			if backdrop.insets then
-				backdrop.insets.top = 0
-				backdrop.insets.right = 0
-				backdrop.insets.bottom = 0
-				backdrop.insets.left = 0
+		if forceBG ~= false then
+			local a, backdrop = 0.8, self:GetBackdrop()
+			if type(backdrop) == "table" then
+				backdrop.edgeFile = nil
+				if backdrop.insets then
+					backdrop.insets.top = 0
+					backdrop.insets.right = 0
+					backdrop.insets.bottom = 0
+					backdrop.insets.left = 0
+				end
+				if backdrop.bgFile and strmatch(backdrop.bgFile, "Tooltip") then
+					a = 1
+				end
 			end
-			if backdrop.bgFile and strmatch(backdrop.bgFile, "Tooltip") then
-				a = 1
-			end
+			self:SetBackdrop(backdrop)
+			self:SetBackdropColor(0, 0, 0, a)
 		end
-		self:SetBackdrop(backdrop)
-		self:SetBackdropColor(0, 0, 0, a)
 
-		if blockChanges then
+		if forceBG then
 			self.SetBackdrop = noop
 			self.SetBackdropColor = noop
 			self.SetBackdropBorderColor = noop
@@ -296,16 +298,16 @@ function Addon.AddShadow(self, size, offset)
 	s.BOTTOMLEFT:SetTexCoord(0, 1/3, 2/3, 1)
 	s.LEFT:SetTexCoord(0, 1/3, 1/3, 2/3)
 
-	self.GetShadowAlpha = GetShadowAlpha
-	self.SetShadowAlpha = SetShadowAlpha
+	self.GetShadowAlpha = Addon.GetShadowAlpha
+	self.SetShadowAlpha = Addon.SetShadowAlpha
 
-	self.GetShadowColor = GetShadowColor
-	self.SetShadowColor = SetShadowColor
+	self.GetShadowColor = Addon.GetShadowColor
+	self.SetShadowColor = Addon.SetShadowColor
 
-	self.GetShadowSize  = GetShadowSize
-	self.SetShadowSize  = SetShadowSize
+	self.GetShadowSize  = Addon.GetShadowSize
+	self.SetShadowSize  = Addon.SetShadowSize
 
-	self.WithShadow     = WithShadow
+	self.WithShadow     = Addon.WithShadow
 
 	tinsert(shadowedFrames, self)
 
@@ -337,7 +339,6 @@ function Addon.SetShadowColor(self, r, g, b, a)
 	if not r or not g or not b or a == 0 then
 		r, g, b, a = config.shadow.color.r, config.shadow.color.g, config.shadow.color.b, config.shadow.color.a
 	end
-
 	for i = 1, #points do
 		self.ShadowTextures[points[i]]:SetVertexColor(r, g, b)
 	end
@@ -350,13 +351,10 @@ end
 
 ------------------------------------------------------------------------
 
-function Addon.SetShadowSize(self, size, offset)
+function Addon.SetShadowSize(self, size, dL, dR, dT, dB)
 	if type(self) ~= "table" or not self.ShadowTextures then return end
 	if not size then
 		size = config.border.size * config.shadow.size
-	end
-	if not offset then
-		offset = 0
 	end
 
 	local s = self.ShadowTextures
@@ -367,21 +365,26 @@ function Addon.SetShadowSize(self, size, offset)
 		s[i]:SetHeight(size)
 	end
 
-	s.TOPLEFT:SetPoint("CENTER", t.TOPLEFT, -offset, offset) -- TOPLEFT
-	s.TOPRIGHT:SetPoint("CENTER", t.TOPRIGHT, offset, offset) -- TOPRIGHT
-	s.BOTTOMLEFT:SetPoint("CENTER", t.BOTTOMLEFT, -offset, -offset) -- BOTTOMLEFT
-	s.BOTTOMRIGHT:SetPoint("CENTER", t.BOTTOMRIGHT, offset, -offset) -- BOTTOMRIGHT
+	dR = dR or dL or 0
+	dT = dT or dL or 0
+	dB = dB or dL or 0
+	dL = dL or 0 -- has to be last so it can be a fallback above
 
-	s.TOP:SetPoint("TOPLEFT", s.TOPLEFT, "TOPRIGHT") -- TOP
+	s.TOPLEFT:SetPoint("CENTER", t.TOPLEFT, -dL, dT)
+	s.TOPRIGHT:SetPoint("CENTER", t.TOPRIGHT, dR, dT)
+	s.BOTTOMLEFT:SetPoint("CENTER", t.BOTTOMLEFT, -dL, -dB)
+	s.BOTTOMRIGHT:SetPoint("CENTER", t.BOTTOMRIGHT, dR, -dB)
+
+	s.TOP:SetPoint("TOPLEFT", s.TOPLEFT, "TOPRIGHT")
 	s.TOP:SetPoint("TOPRIGHT", s.TOPRIGHT, "TOPLEFT")
 
-	s.BOTTOM:SetPoint("BOTTOMLEFT", s.BOTTOMLEFT, "BOTTOMRIGHT") -- BOTTOM
+	s.BOTTOM:SetPoint("BOTTOMLEFT", s.BOTTOMLEFT, "BOTTOMRIGHT")
 	s.BOTTOM:SetPoint("BOTTOMRIGHT", s.BOTTOMRIGHT, "BOTTOMLEFT")
 
-	s.LEFT:SetPoint("TOPLEFT", s.TOPLEFT, "BOTTOMLEFT") -- LEFT
+	s.LEFT:SetPoint("TOPLEFT", s.TOPLEFT, "BOTTOMLEFT")
 	s.LEFT:SetPoint("BOTTOMLEFT", s.BOTTOMLEFT, "TOPLEFT")
 
-	s.RIGHT:SetPoint("TOPRIGHT", s.TOPRIGHT, "BOTTOMRIGHT") -- RIGHT
+	s.RIGHT:SetPoint("TOPRIGHT", s.TOPRIGHT, "BOTTOMRIGHT")
 	s.RIGHT:SetPoint("BOTTOMRIGHT", s.BOTTOMRIGHT, "TOPRIGHT")
 end
 
