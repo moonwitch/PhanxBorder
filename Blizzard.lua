@@ -44,6 +44,7 @@ local function ColorByClass(frame, class)
 	local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class or PLAYER_CLASS]
 	frame:SetBorderColor(color.r, color.g, color.b)
 end
+Addon.ColorByClass = ColorByClass
 
 local function ColorByItemQuality(frame, quality, link)
 	if not frame.BorderTextures then
@@ -61,6 +62,7 @@ local function ColorByItemQuality(frame, quality, link)
 		frame:SetBorderColor()
 	end
 end
+Addon.ColorByItemQuality = ColorByItemQuality
 
 ------------------------------------------------------------------------
 --	Bordered tooltips
@@ -577,7 +579,8 @@ tinsert(applyFuncs, function()
 			local button = _G["GuildBankColumn"..col.."Button"..row]
 			local link = GetGuildBankItemLink(tab, i)
 			ColorByItemQuality(button, nil, link)
-		end)
+		end
+	end)
 
 	return true
 end)
