@@ -7,8 +7,7 @@
 ----------------------------------------------------------------------]]
 
 local _, PhanxBorder = ...
-local _, _, _, Masque = GetAddOnInfo("Masque")
-
+local Masque = IsAddOnLoaded("Masque")
 local AddBorder = PhanxBorder.AddBorder
 local AddShadow = PhanxBorder.AddShadow
 local config = PhanxBorder.config
@@ -130,21 +129,15 @@ tinsert(applyFuncs, function()
 		ArchyDigSiteFrame:SetBackdrop(BG)
 		ArchyDigSiteFrame:SetBackdropColor(0, 0, 0, 0.8)
 		ArchyDigSiteFrame:SetBackdropBorderColor(0, 0, 0, 0.8)
-		AddBorder(ArchyDigSiteFrame)
-		ArchyDigSiteFrame.SetBackdrop = noop
-		ArchyDigSiteFrame.SetBackdropColor = noop
-		ArchyDigSiteFrame.SetBackdropBorderColor = noop
-		ArchyDigSiteFrame.SetBorderSize = noop
+		AddBorder(ArchyDigSiteFrame, nil, nil, true)
+		ArchyDigSiteFrame.SetBorderSize = noop -- called by options setters for some reason
 		ArchyDigSiteFrame:SetScale(1)
 		ArchyDigSiteFrame.SetScale = noop
 
 		ArchyArtifactFrame:SetBackdrop(BG)
 		ArchyArtifactFrame:SetBackdropColor(0, 0, 0, 0.8)
 		ArchyArtifactFrame:SetBackdropBorderColor(0, 0, 0, 0.8)
-		AddBorder(ArchyArtifactFrame)
-		ArchyArtifactFrame.SetBackdrop = noop
-		ArchyArtifactFrame.SetBackdropColor = noop
-		ArchyArtifactFrame.SetBackdropBorderColor = noop
+		AddBorder(ArchyArtifactFrame, nil, nil, true)
 		ArchyArtifactFrame.SetBorderSize = noop -- called by options setters for some reason
 		ArchyArtifactFrame:SetScale(1)
 		ArchyArtifactFrame.SetScale = noop
@@ -266,8 +259,7 @@ tinsert(applyFuncs, function()
 		-- print("Adding border to Bazooka")
 		local color = false -- config.useClassColor and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
 		for i, bar in ipairs(Bazooka.bars) do
-			AddBorder(bar.frame, nil, nil, nil, true)
-			bar.frame:SetBorderSize(14, 7)
+			AddBorder(bar.frame, 14, 7, nil, true)
 			bar.frame:SetShadowAlpha(0.25)
 			Bazooka.db.profile.bars[i].bgBorderTexture = "None"
 			if color then
@@ -344,8 +336,7 @@ end)
 tinsert(applyFuncs, function()
 	if CoolLine then
 		-- print("Adding border to CoolLine")
-		AddBorder(CoolLine)
-		CoolLine:SetBorderSize(nil, 7)
+		AddBorder(CoolLine, nil, -1)
 --[[
 		function CoolLine_AddBorders()
 			-- print("Adding border to CoolLine icons")
@@ -413,7 +404,7 @@ tinsert(applyFuncs, function()
 		GridLayoutFrame.texture:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0)
 		GridLayoutFrame.texture:Hide()
 
-		AddBorder(GridLayoutFrame, 15)
+		AddBorder(GridLayoutFrame, -9)
 
 		local backdrop = GridLayoutFrame:GetBackdrop()
 		backdrop.bgFile = "Interface\\BUTTONS\\WHITE8X8"
@@ -519,7 +510,7 @@ tinsert(applyFuncs, function()
 		for i, teamFrames in pairs(PetBattleTeamsRosterFrame.scrollChild.teamFrames) do
 			for j, unitFrames in pairs(teamFrames.unitFrames) do
 				for k, unitFrame in pairs(unitFrames) do
-					AddBorder(unitFrame) -- , nil, 2)
+					AddBorder(unitFrame)
 				end
 			end
 		end
@@ -548,7 +539,7 @@ tinsert(applyFuncs, function()
 		for i = 1, #buttons do
 			local button = buttons[i]
 			local index = offset + i
-			AddBorder(button.dragButton, nil, 4)
+			AddBorder(button.dragButton, nil, 2)
 			if index <= Sorting:GetNumPets() then
 				local mappedPet = Sorting:GetPetByIndex(index)
 				local petID, _, isOwned, _, _, _, _, name, _, _, _, _, _, _, canBattle = C_PetJournal.GetPetInfoByIndex(mappedPet.index, isWild)
@@ -608,7 +599,7 @@ tinsert(applyFuncs, function()
 	EnemyActions:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 32, -30)
 	for i = 1, EnemyActions:GetNumChildren() do
 		local button = select(i, EnemyActions:GetChildren())
-		AddBorder(button, nil, 4)
+		AddBorder(button, nil, 2)
 	end
 
 	-- Remove the micro buttons from the pet battle UI
@@ -643,7 +634,7 @@ tinsert(applyFuncs, function()
 	bar.Overlay.BorderLeft:SetTexture("")
 	bar.Overlay.BorderRight:SetTexture("")
 	bar.Overlay.BorderCenter:SetTexture("")
-	AddBorder(bar.Overlay, 12, 4)
+	AddBorder(bar.Overlay, 12)
 
 	if config.isPhanx then
 		for i = 1, bar:GetNumChildren() do
@@ -748,9 +739,10 @@ tinsert(applyFuncs, function()
 	local function ProcessorigSetRow()
 		local f = EnumerateFrames()
 		while f do
-			if (not f.IsForbidden or not f:IsForbidden()) and f:GetParent() == UIParent and not f:GetName() and f.background and f.iconFrame and f.icon and f.rollIcon and f.text and f.fader and f.SetRow then
+			if (not f.IsForbidden or not f:IsForbidden()) and f:GetParent() == UIParent and not f:GetName()
+			and f.background and f.iconFrame and f.icon and f.rollIcon and f.text and f.fader and f.SetRow then
 				if not origSetRow[f] then
-					print("Adding border to new Touhin frame.")
+					--print("Adding border to new Touhin frame.")
 					origSetRow[f] = f.SetRow
 					f.SetRow = SetRow
 					SetRow(f)

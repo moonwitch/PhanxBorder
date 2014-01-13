@@ -9,6 +9,8 @@
 ## X-Copyright: Copyright (c) 2008-2013 Phanx. All rights reserved.
 ## X-License: See the accompanying LICENSE file for details.
 
+## OptionalDependencies: Masque, PhanxMedia
+
 Border.lua
 
 Blizzard.lua

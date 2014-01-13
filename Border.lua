@@ -220,10 +220,11 @@ function Addon.SetBorderSize(self, size, dL, dR, dT, dB)
 		t[points[i]]:SetSize(size, size)
 	end
 
-	dL = dL or floor(size * 0.5) - 2 -- floor(size * 0.25 + 0.5)
-	dR = dR or dL
-	dT = dT or dL
-	dB = dB or dL
+	local offset = floor(size * 0.5) - 2 -- floor(size * 0.25 + 0.5)
+	dR = offset - (dR or dL or 0)
+	dT = offset - (dT or dL or 0)
+	dB = offset - (dB or dL or 0)
+	dL = offset - (dL or 0) -- has to be last so it can be a fallback above
 
 	t.TOPLEFT:SetPoint("TOPLEFT", self, -dL, dT)
 	t.TOPRIGHT:SetPoint("TOPRIGHT", self, dR, dT)
