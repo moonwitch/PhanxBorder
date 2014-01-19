@@ -13,19 +13,23 @@ local isPhanx = select(6, GetAddOnInfo("PhanxMedia")) ~= "MISSING"
 
 local config = {
 	border = {
-		texture = [[Interface\AddOns\PhanxBorder\Textures\Border]], -- SimpleSquare]]
 		color = { r = 0.47, g = 0.47, b = 0.47, a = 1 },
+		texture = [[Interface\AddOns\PhanxBorder\Textures\Border]], -- SimpleSquare]]
 		size = 16,
 	},
 	shadow = {
-		texture = [[Interface\AddOns\PhanxBorder\Textures\GlowOuter]],
 		color = { r = 0, g = 0, b = 0, a = 1 },
+		texture = [[Interface\AddOns\PhanxBorder\Textures\GlowOuter]],
 		size = 1.5,
+	},
+	backdrop = {
+		color = { r = 136/255, g = 149/255, b = 169/255, a = 1 },
+		texture = [[Interface\FrameGeneral\UI-Background-Rock]],
+		size = 256,
 	},
 	font = oUFPhanxConfig and oUFPhanxConfig.font or isPhanx and [[Interface\AddOns\PhanxMedia\font\DejaWeb-Bold.ttf]] or [[Fonts\FRIZQT__.ttf]],
 	statusbar = oUFPhanxConfig and oUFPhanxConfig.statusbar or isPhanx and [[Interface\AddOns\PhanxMedia\statusbar\BlizzStone2]] or [[Interface\TargetingFrame\UI-StatusBar]],
 	useClassColor = true,
-	isPhanx = isPhanx,
 }
 
 ------------------------------------------------------------------------
@@ -71,23 +75,20 @@ function Addon.AddBorder(self, size, offset, forceBG, shadow)
 	t.LEFT:SetTexCoord(0, 1/3, 1/3, 2/3)
 
 	if self.SetBackdropBorderColor then
-		if forceBG ~= false then
-			local a, backdrop = 0.8, self:GetBackdrop()
-			if type(backdrop) == "table" then
-				backdrop.edgeFile = nil
-				if backdrop.insets then
-					backdrop.insets.top = 0
-					backdrop.insets.right = 0
-					backdrop.insets.bottom = 0
-					backdrop.insets.left = 0
-				end
-				if backdrop.bgFile and strmatch(backdrop.bgFile, "Tooltip") then
-					a = 1
-				end
+		local backdrop = self:GetBackdrop()
+		if type(backdrop) == "table" then
+			local r, g, b, a = self:GetBackdropColor()
+			backdrop.edgeFile = nil
+			if backdrop.insets then
+				backdrop.insets.top = 0
+				backdrop.insets.right = 0
+				backdrop.insets.bottom = 0
+				backdrop.insets.left = 0
 			end
 			self:SetBackdrop(backdrop)
-			self:SetBackdropColor(0, 0, 0, a)
+			self:SetBackdropColor(r, g, b, a)
 		end
+
 
 		if forceBG then
 			self.SetBackdrop = noop
@@ -427,6 +428,8 @@ function Addon.WithAllShadows(what, ...)
 	end
 end
 
+Addon.isPhanx = isPhanx
 Addon.config = config
+Addon.noop = noop
 
 ------------------------------------------------------------------------
