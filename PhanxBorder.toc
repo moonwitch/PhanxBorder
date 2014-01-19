@@ -9,7 +9,7 @@
 ## X-Copyright: Copyright (c) 2008-2013 Phanx. All rights reserved.
 ## X-License: See the accompanying LICENSE file for details.
 
-## OptionalDependencies: Masque, PhanxMedia
+## OptionalDependencies: Masque, PhanxMedia, LibBackdrop-1.0
 
 Border.lua
 
