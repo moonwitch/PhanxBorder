@@ -11,7 +11,7 @@ local Masque = IsAddOnLoaded("Masque")
 local AddBorder = Addon.AddBorder
 local AddShadow = Addon.AddShadow
 local config = Addon.config
-local noop = function() end
+local noop = Addon.noop
 
 local applyFuncs = { }
 
@@ -97,9 +97,10 @@ tinsert(applyFuncs, function()
 		if f then
 			--print("Adding border to", borderedTooltips[i])
 			for _, region in pairs(borderedTooltipRegions) do
-				f[region]:Hide()
+				f[region]:SetTexture("")
 			end
-			f:SetBackdrop(GameTooltip:GetBackdrop())
+			f:SetBackdrop(BACKDROP)
+			f:SetBackdropColor(0, 0, 0, 0.8)
 			AddBorder(f)
 			tremove(borderedTooltips, i)
 		end
@@ -414,25 +415,23 @@ tinsert(applyFuncs, function()
 	AddItemBorder(QuestInfoSkillPointFrame)
 
 	for i = 1, MAX_NUM_ITEMS do
-		AddItemBorder(_G["QuestInfoItem"..i])
+		AddBorder(_G["QuestInfoItem"..i])
+		if Addon.isPhanx then
+			_G["QuestInfoItem"..i.."NameFrame"]:SetTexture("")
+			_G["QuestInfoItem"..i.."Name"]:SetFontObject(QuestFontNormalSmall)
+		end
 	end
 
 	hooksecurefunc("QuestInfo_Display", function()
-		-- Have to set border sizes here because scale is weird OnLoad?
-		--QuestInfoRewardSpell:SetBorderSize(nil, -3, -103, 4, -8)
+		-- Have to set border sizes here because scale is weird at PLAYER_LOGIN
+		QuestInfoRewardSpell:SetBorderSize(nil, 10, 108, 2, 14) -- still 4px bigger (2px each inset) than skillpoints and items
 		QuestInfoSkillPointFrame:SetBorderSize(nil, -1, 112, 2, 3)
 		for i = 1, MAX_NUM_ITEMS do
 			local f = _G["QuestInfoItem"..i]
-			f:SetBorderSize(nil, 2, 109, 2, 3)
-
 			local link = f.type and (QuestInfoFrame.questLog and GetQuestLogItemLink or GetQuestItemLink)(f.type, f:GetID())
 			ColorByItemQuality(f, nil, link)
+			f:SetBorderSize(nil, 2, 109, 2, 3)
 		end
-	end)
-
-	hooksecurefunc("QuestInfo_ShowRewards", function()
-		print("QuestInfo_ShowRewards")
-		-- TODO: does this ever fire?
 	end)
 
 	for i = 1, MAX_REQUIRED_ITEMS do
@@ -442,6 +441,7 @@ tinsert(applyFuncs, function()
 	end
 
 	hooksecurefunc("QuestFrameProgressItems_Update", function()
+		--print("QuestFrameProgressItems_Update")
 		for i = 1, MAX_REQUIRED_ITEMS do
 			local f = _G["QuestProgressItem"..i]
 			local link = f.type and GetQuestItemLink(f.type, f:GetID())
@@ -473,7 +473,7 @@ tinsert(applyFuncs, function()
 		_G["SpellButton" .. i .. "IconTexture"]:SetTexCoord(0.06, 0.94, 0.06, 0.94)
 		button:HookScript("OnDisable", Button_OnDisable)
 		button:HookScript("OnEnable", Button_OnEnable)
-		if config.isPhanx then
+		if Addon.isPhanx then
 			button.SpellName:SetFont(config.font, 16)
 		end
 	end
@@ -488,7 +488,7 @@ tinsert(applyFuncs, function()
 				select(3, button:GetRegions()):SetTexture("") -- swirly thing
 				local a, b, c, x, y = button.Name:GetPoint(1)
 				button.Name:SetPoint(a, b, c, x, 3)
-				if config.isPhanx then
+				if Addon.isPhanx then
 					button.Name:SetFont(config.font, 16)
 				end
 			end
