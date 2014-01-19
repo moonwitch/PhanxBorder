@@ -7,11 +7,11 @@
 ----------------------------------------------------------------------]]
 
 local _, Addon = ...
+local Masque = IsAddOnLoaded("Masque")
 local AddBorder = Addon.AddBorder
 local AddShadow = Addon.AddShadow
-local Masque = IsAddOnLoaded("Masque")
 local config = Addon.config
-local noop = function() end
+local noop = Addon.noop
 
 local applyFuncs = {}
 
@@ -119,47 +119,26 @@ end)
 ------------------------------------------------------------------------
 
 tinsert(applyFuncs, function()
-	if ArchyDigSiteFrame then
-		local BG = {
-			bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8,
-			edgeFile = [[Interface\BUTTONS\WHITE8X8]], edgeSize = 2,
-			insets = { left = 0, right = 0, top = 0, bottom = 0 },
-		}
+	if not ArchyDigSiteFrame then return end
 
-		ArchyDigSiteFrame:SetBackdrop(BG)
-		ArchyDigSiteFrame:SetBackdropColor(0, 0, 0, 0.8)
-		ArchyDigSiteFrame:SetBackdropBorderColor(0, 0, 0, 0.8)
-		AddBorder(ArchyDigSiteFrame, nil, nil, true)
-		ArchyDigSiteFrame.SetBorderSize = noop -- called by options setters for some reason
-		ArchyDigSiteFrame:SetScale(1)
-		ArchyDigSiteFrame.SetScale = noop
+	AddBorder(ArchyArtifactFrame)
+	ArchyArtifactFrame.SetBackdropBorderColor = noop
+	ArchyArtifactFrame:SetFrameStrata("LOW")
 
-		ArchyArtifactFrame:SetBackdrop(BG)
-		ArchyArtifactFrame:SetBackdropColor(0, 0, 0, 0.8)
-		ArchyArtifactFrame:SetBackdropBorderColor(0, 0, 0, 0.8)
-		AddBorder(ArchyArtifactFrame, nil, nil, true)
-		ArchyArtifactFrame.SetBorderSize = noop -- called by options setters for some reason
-		ArchyArtifactFrame:SetScale(1)
-		ArchyArtifactFrame.SetScale = noop
+	ArchyArtifactFrameSkillBarBorder:SetTexture("")
 
-		ArchyDistanceIndicatorFrameCircleDistance:SetFont((GameFontNormal:GetFont()), 30, "OUTLINE")
-		ArchyDistanceIndicatorFrameCircleDistance:SetTextColor(1, 1, 1)
+	AddBorder(ArchyDigSiteFrame)
+	ArchyDigSiteFrame.SetBackdropBorderColor = noop
+	ArchyDigSiteFrame:SetFrameStrata("LOW")
 
-		ArchyDistanceIndicatorFrameSurveyButton:SetNormalTexture(nil)
-		ArchyDistanceIndicatorFrameCrateButton:SetNormalTexture(nil)
+	ArchyDistanceIndicatorFrame:SetPoint("CENTER", ArchyDigSiteFrame, "TOPLEFT", 40, 5)
+	ArchyDistanceIndicatorFrameCircleDistance:SetFont((GameFontNormal:GetFont()), 30, "OUTLINE")
+	ArchyDistanceIndicatorFrameCircleDistance:SetTextColor(1, 1, 1)
+	ArchyDistanceIndicatorFrameSurveyButton:SetNormalTexture("")
+	ArchyDistanceIndicatorFrameCrateButton:SetNormalTexture("")
+	ArchyDistanceIndicatorFrameLorItemButton:SetNormalTexture("")
 
-		ArchyArtifactFrame:HookScript("OnShow", function(f)
-			if f.skillBar then
-				f.skillBar:SetStatusBarTexture(f.children[1].fragmentBar:GetStatusBarTexture():GetTexture())
-				for i = 1, #f.children do
-					f.children[i].fragmentBar.artifact:SetFontObject(GameFontHighlightSmall)
-					f.children[i].fragmentBar.fragments:SetFontObject(GameFontHighlightSmall)
-				end
-			end
-		end)
-
-		return true
-	end
+	return true
 end)
 
 ------------------------------------------------------------------------
@@ -215,7 +194,56 @@ end)
 tinsert(applyFuncs, function()
 	if not Bagnon then return end
 
-	local function MoveFrames()
+	-- TODO: Something to prevent conflicts with Masque?
+	if select(4, GetAddOnInfo("Bagnon_Facade")) then
+		print("WARNING: Bagnon_Facade is enabled. You should disable it!")
+	end
+
+	local function ItemSlot_Update(button)
+		button:SetBorderSize(nil, 1) -- fixes scaling issues
+		button.icon:SetTexCoord(0.03, 0.97, 0.03, 0.97)
+	end
+	local function ItemSlot_OnEnter(button)
+		Addon.ColorByClass(button)
+	end
+	local function ItemSlot_OnLeave(button)
+		button:UpdateBorder()
+	end
+
+	local ItemSlot_Create = Bagnon.ItemSlot.Create
+	function Bagnon.ItemSlot:Create()
+		local button = ItemSlot_Create(self)
+		AddBorder(button)
+		button:GetNormalTexture():SetTexture("")
+		button:GetHighlightTexture():SetTexture("")
+		button.icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
+		button.border.Show = button.border.Hide
+		hooksecurefunc(button, "HideBorder", button.SetBorderColor)
+		hooksecurefunc(button, "Update", ItemSlot_Update)
+		button:HookScript("OnEnter", ItemSlot_OnEnter)
+		button:HookScript("OnLeave", ItemSlot_OnLeave)
+		return button
+	end
+
+	local function ResizeChildBorders(frame)
+		for i = 1, frame:GetNumChildren() do
+			local child = select(i, frame:GetChildren())
+			local slots = child.itemSlots
+			if slots then
+				for i = 1, #slots do
+					ItemSlot_Update(slots[i])
+				end
+				break
+			end
+		end
+	end
+
+	local function MoveFrames(frame)
+		frame:SetBackdrop({ bgFile = config.backdrop.texture, tile = true, tileSize = config.backdrop.size })
+		frame:GetSettings():SetColor(config.backdrop.color.r, config.backdrop.color.g, config.backdrop.color.b, config.backdrop.color.a)
+		frame:SetBackdropColor(config.backdrop.color.r, config.backdrop.color.g, config.backdrop.color.b, config.backdrop.color.a)
+		-- ^ Required because :SetColor won't actually set the color if it's the same as the previously saved color.
+
 		local inventory = Bagnon.frames.inventory
 		if not inventory then return end
 		--print("Moving inventory frame...")
@@ -233,43 +261,27 @@ tinsert(applyFuncs, function()
 
 	hooksecurefunc(Bagnon, "CreateFrame", function(Bagnon, id)
 		--print("Adding border to Bagnon", id, "frame")
-		local f = Bagnon.frames[id]
-		AddBorder(f)
+		local frame = Bagnon.frames[id]
+		AddBorder(frame)
+		hooksecurefunc(frame, "UpdateScale", ResizeChildBorders)
+
 		if config.useClassColor then
 			local _, class = UnitClass("player")
 			local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
-			f:GetSettings():SetBorderColor(color.r, color.g, color.b, 1)
+			frame:GetSettings():SetBorderColor(color.r, color.g, color.b, 1)
 		else
-			f:GetSettings():SetBorderColor(f.BorderTextures.TOPLEFT:GetVertexColor())
+			frame:GetSettings():SetBorderColor(f.BorderTextures.TOPLEFT:GetVertexColor())
 		end
-		if config.isPhanx then
-			f:HookScript("OnShow", MoveFrames)
+
+		if Addon.isPhanx then
+			frame:HookScript("OnShow", MoveFrames)
+			local LibBackdrop = LibStub and LibStub("LibBackdrop-1.0", true)
+			if LibBackdrop then
+				LibBackdrop:EnhanceBackdrop(frame)
+				frame.SetBackdropBorderColor = Addon.SetBorderColor
+			end
 		end
 	end)
-
-	local function ItemSlot_Update(button)
-		button:SetBorderSize() -- fixes scaling issues
-	end
-	local function ItemSlot_OnEnter(button)
-		Addon.ColorByClass(button)
-	end
-	local function ItemSlot_OnLeave(button)
-		button:UpdateBorder()
-	end
-
-	-- TODO: Something to prevent conflicts with Masque?
-	local ItemSlot_Create = Bagnon.ItemSlot.Create
-	function Bagnon.ItemSlot:Create()
-		local button = ItemSlot_Create(self)
-		AddBorder(button)
-		button:GetHighlightTexture():SetTexture("")
-		button.border.Show = button.border.Hide
-		hooksecurefunc(button, "HideBorder", button.SetBorderColor)
-		hooksecurefunc(button, "Update", ItemSlot_Update)
-		button:HookScript("OnEnter", ItemSlot_OnEnter)
-		button:HookScript("OnLeave", ItemSlot_OnLeave)
-		return button
-	end
 
 	return true
 end)
@@ -301,6 +313,7 @@ tinsert(applyFuncs, function()
 				db.textColor.b = color.b
 			end
 			bar:applyBGSettings()
+			bar:applySettings()
 		end
 		return true
 	end
@@ -613,7 +626,14 @@ tinsert(applyFuncs, function()
 	bar.Overlay.BorderRight:SetTexture("")
 	bar.Overlay.BorderCenter:SetTexture("")
 	AddBorder(bar.Overlay)
-	if config.isPhanx then
+
+	local EnemyActions = PetTracker.EnemyActions
+	for i = 1, EnemyActions:GetNumChildren() do
+		local button = select(i, EnemyActions:GetChildren())
+		AddBorder(button, nil, 2)
+	end
+
+	if Addon.isPhanx then
 		for i = 1, bar:GetNumChildren() do
 			local child = select(i, bar:GetChildren())
 			if child:IsObjectType("StatusBar") then
@@ -623,30 +643,25 @@ tinsert(applyFuncs, function()
 				child:SetAlpha(0.75)
 			end
 		end
-	end
 
-	-- Move enemy action buttons to micro button area
-	local EnemyActions = PetTracker.EnemyActions
-	local _, parent = EnemyActions:GetPoint(1)
-	EnemyActions:ClearAllPoints()
-	EnemyActions:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 32, -30)
-	for i = 1, EnemyActions:GetNumChildren() do
-		local button = select(i, EnemyActions:GetChildren())
-		AddBorder(button, nil, 2)
-	end
+		-- Move enemy action buttons to micro button area
+		local _, parent = EnemyActions:GetPoint(1)
+		EnemyActions:ClearAllPoints()
+		EnemyActions:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 32, -30)
 
-	-- Remove the micro buttons from the pet battle UI
-	local okparents = {
-		BT4BarMicroMenu = true,
-		MainMenuBarArtFrame = true,
-	}
-	hooksecurefunc("UpdateMicroButtonsParent", function(parent)
-		--print("UpdateMicroButtonsParent", parentGetName() or UNKNOWN)
-		if InCombatLockdown() or okparents[parent and parent:GetName() or UNKNOWN] then
-			return
-		end
-		MainMenuBar:GetScript("OnShow")(MainMenuBar)
-	end)
+		-- Remove the micro buttons from the pet battle UI
+		local okparents = {
+			BT4BarMicroMenu = true,
+			MainMenuBarArtFrame = true,
+		}
+		hooksecurefunc("UpdateMicroButtonsParent", function(parent)
+			--print("UpdateMicroButtonsParent", parentGetName() or UNKNOWN)
+			if InCombatLockdown() or okparents[parent and parent:GetName() or UNKNOWN] then
+				return
+			end
+			MainMenuBar:GetScript("OnShow")(MainMenuBar)
+		end)
+	end
 
 	return true
 end)
@@ -669,7 +684,7 @@ tinsert(applyFuncs, function()
 	bar.Overlay.BorderCenter:SetTexture("")
 	AddBorder(bar.Overlay, 12)
 
-	if config.isPhanx then
+	if Addon.isPhanx then
 		for i = 1, bar:GetNumChildren() do
 			local child = select(i, bar:GetChildren())
 			if child:IsObjectType("StatusBar") then
@@ -743,28 +758,39 @@ tinsert(applyFuncs, function()
 	local origSetRow = {}
 
 	local function SetRow(self, icon, color, text, hightlightColor)
-		if icon then
-			origSetRow[self](self, icon, color, text, hightlightColor)
+		if not origSetRow[self] then
+			--print("Adding border to new Touhin frame.")
+			origSetRow[self] = self.SetRow
+			self.SetRow = SetRow
+
+			Touhin.db.profile.edgeFile = "None"
+			Touhin.db.profile.insets = 0
+
+			self:SetBackdrop(nil)
+
+			self.background:ClearAllPoints()
+			self.background:SetAllPoints(true)
+			local color = Touhin.db.profile.bgColor
+			self.background:SetVertexColor(color.r, color.g, color.b, 1)
+			self.background.SetVertexColor = noop
+
+			self.iconFrame:SetBackdrop(nil)
+
+			self.icon:SetParent(self)
+			self.icon:ClearAllPoints()
+			self.icon:SetPoint("TOPLEFT")
+			self.icon:SetPoint("BOTTOMLEFT")
+			self.icon:SetWidth(self:GetHeight())
+
+			AddBorder(self)
 		end
 
-		Touhin.db.profile.edgeFile = "None"
-		Touhin.db.profile.insets = 0
+		if not icon then return end
 
-		self:SetBackdrop(nil)
+		origSetRow[self](self, icon, color, text, hightlightColor)
+		self:SetWidth(self:GetWidth() + 5)
 
-		self.background:ClearAllPoints()
-		self.background:SetAllPoints(true)
-		local r, g, b = self.background:GetVertexColor()
-		self.background:SetVertexColor(r, g, b, 1)
-
-		self.iconFrame:ClearAllPoints()
-		self.iconFrame:SetPoint("LEFT", 0, 0)
-
-		self.icon:ClearAllPoints()
-		self.icon:SetAllPoints(self.iconFrame)
-
-		Addon.AddBorder(self)
-		if icon and not highlightColor then
+		if not highlightColor then
 			self:SetBorderColor()
 		end
 	end
@@ -775,9 +801,6 @@ tinsert(applyFuncs, function()
 			if (not f.IsForbidden or not f:IsForbidden()) and f:GetParent() == UIParent and not f:GetName()
 			and f.background and f.iconFrame and f.icon and f.rollIcon and f.text and f.fader and f.SetRow then
 				if not origSetRow[f] then
-					--print("Adding border to new Touhin frame.")
-					origSetRow[f] = f.SetRow
-					f.SetRow = SetRow
 					SetRow(f)
 				end
 			end
