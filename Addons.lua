@@ -773,11 +773,13 @@ tinsert(applyFuncs, function()
 			local color = Touhin.db.profile.bgColor
 			self.background:SetVertexColor(color.r, color.g, color.b, 1)
 			self.background.SetVertexColor = noop
+			self.background:SetAlpha(1)
 
 			self.iconFrame:SetBackdrop(nil)
 
 			self.icon:SetParent(self)
 			self.icon:ClearAllPoints()
+			self.icon:SetDrawLayer("BORDER")
 			self.icon:SetPoint("TOPLEFT")
 			self.icon:SetPoint("BOTTOMLEFT")
 			self.icon:SetWidth(self:GetHeight())
@@ -788,9 +790,10 @@ tinsert(applyFuncs, function()
 		if not icon then return end
 
 		origSetRow[self](self, icon, color, text, hightlightColor)
-		self:SetWidth(self:GetWidth() + 5)
+		--self:SetWidth(self:GetWidth() + 5)
+		self.icon:SetWidth(self:GetHeight())
 
-		if not highlightColor then
+		if highlightColor then
 			self:SetBorderColor()
 		end
 	end

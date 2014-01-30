@@ -668,6 +668,8 @@ tinsert(applyFuncs, function()
 
 	AddBorder(PetJournalHealPetButton)
 	PetJournalHealPetButtonBorder:SetTexture("")
+	PetJournalHealPetButton.texture:SetDrawLayer("BACKGROUND")
+	PetJournalHealPetButton.BlackCover:SetDrawLayer("ARTWORK")
 
 	do
 		local f = PetJournalPetCardPetInfo
