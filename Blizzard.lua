@@ -120,7 +120,6 @@ tinsert(applyFuncs, function()
 	for frame, offset in pairs({
 		["GhostFrame"] = 2,
 		["HelpFrameCharacterStuckHearthstone"] = false,
-		["Minimap"] = false,
 		["TicketStatusFrame"] = false,
 
 		["DropDownList1MenuBackdrop"] = false,
@@ -168,6 +167,10 @@ tinsert(applyFuncs, function()
 		if strmatch(frame, "aryProfession") then
 			_G[frame.."NameFrame"]:SetTexture("")
 		end
+	end
+
+	if GetMinimapShape and GetMinimapShape() == "SQUARE" then
+		AddBorder(Minimap)
 	end
 
 	GhostFrame:SetWidth(140)
