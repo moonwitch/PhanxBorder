@@ -2,7 +2,7 @@
 	PhanxBorder
 	World of Warcraft user interface addon:
 	Adds shiny borders to things.
-	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2008-2014 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
@@ -645,9 +645,9 @@ tinsert(applyFuncs, function()
 		end
 
 		-- Move enemy action buttons to micro button area
-		local _, parent = EnemyActions:GetPoint(1)
+		-- local _, parent = EnemyActions:GetPoint(1)
 		EnemyActions:ClearAllPoints()
-		EnemyActions:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 32, -30)
+		EnemyActions:SetPoint("TOPRIGHT", PetBattleFrame.BottomFrame, "TOPRIGHT", 32, -20)
 
 		-- Remove the micro buttons from the pet battle UI
 		local okparents = {
