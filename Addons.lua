@@ -639,8 +639,7 @@ tinsert(applyFuncs, function()
 			if child:IsObjectType("StatusBar") then
 				local r, g, b = child:GetStatusBarColor()
 				child:SetStatusBarTexture(config.statusbar)
-				child:SetStatusBarColor(r, g, b)
-				child:SetAlpha(0.75)
+				child:SetStatusBarColor(r * 0.75, g * 0.75, b * 0.75)
 			end
 		end
 
@@ -678,21 +677,27 @@ tinsert(applyFuncs, function()
 	-- print("Adding borders to PetTracker_Broker")
 	AddBorder(PetTracker_BrokerTip)
 
-	local bar = select(2, PetTracker_BrokerTip:GetChildren()).Bar
-	bar.Overlay.BorderLeft:SetTexture("")
-	bar.Overlay.BorderRight:SetTexture("")
-	bar.Overlay.BorderCenter:SetTexture("")
-	AddBorder(bar.Overlay, 12)
+	for i = 1, PetTracker_BrokerTip:GetNumChildren() do
+		local child = select(i, PetTracker_BrokerTip:GetChildren())
+		local bar = child.Bar
+		if bar then
+			bar.Overlay.BorderLeft:SetTexture("")
+			bar.Overlay.BorderRight:SetTexture("")
+			bar.Overlay.BorderCenter:SetTexture("")
+			AddBorder(bar.Overlay, 12)
 
-	if Addon.isPhanx then
-		for i = 1, bar:GetNumChildren() do
-			local child = select(i, bar:GetChildren())
-			if child:IsObjectType("StatusBar") then
-				local r, g, b = child:GetStatusBarColor()
-				child:SetStatusBarTexture(config.statusbar)
-				child:SetStatusBarColor(r, g, b)
-				child:SetAlpha(0.75)
+			if Addon.isPhanx then
+				for i = 1, bar:GetNumChildren() do
+					local child = select(i, bar:GetChildren())
+					if child:IsObjectType("StatusBar") then
+						local r, g, b = child:GetStatusBarColor()
+						child:SetStatusBarTexture(config.statusbar)
+						child:SetStatusBarColor(r * 0.75, g * 0.75, b * 0.75)
+					end
+				end
 			end
+
+			break
 		end
 	end
 
