@@ -89,12 +89,12 @@ function Addon.AddBorder(self, size, offset, forceBG, shadow)
 			self:SetBackdropColor(r, g, b, a)
 		end
 
-
 		if forceBG then
 			self.SetBackdrop = noop
 			self.SetBackdropColor = noop
 			self.SetBackdropBorderColor = noop
 		else
+			self.GetBackdropBorderColor = Addon.GetBorderColor
 			self.SetBackdropBorderColor = Addon.SetBorderColor
 		end
 	end
