@@ -803,7 +803,7 @@ tinsert(applyFuncs, function()
 		end
 	end
 
-	local function ProcessorigSetRow()
+	local function ProcessRow()
 		local f = EnumerateFrames()
 		while f do
 			if (not f.IsForbidden or not f:IsForbidden()) and f:GetParent() == UIParent and not f:GetName()
@@ -816,9 +816,9 @@ tinsert(applyFuncs, function()
 		end
 	end
 
-	hooksecurefunc(Touhin, "AddCoin", ProcessorigSetRow)
-	hooksecurefunc(Touhin, "AddCurrency", ProcessorigSetRow)
-	hooksecurefunc(Touhin, "AddLoot", ProcessorigSetRow)
+	hooksecurefunc(Touhin, "AddCoin", ProcessRow)
+	hooksecurefunc(Touhin, "AddCurrency", ProcessRow)
+	hooksecurefunc(Touhin, "AddLoot", ProcessRow)
 end)
 
 ------------------------------------------------------------------------
