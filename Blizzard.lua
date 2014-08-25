@@ -6,12 +6,58 @@
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
+local isPhanx = select(6, GetAddOnInfo("PhanxMedia")) ~= "MISSING"
+local FONT = oUFPhanxConfig and oUFPhanxConfig.font or isPhanx and [[Interface\AddOns\PhanxMedia\font\Asap.ttf]] or [[Fonts\FRIZQT__.ttf]]
+
+local BACKDROP = {
+	bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8,
+	edgeFile = [[Interface\BUTTONS\WHITE8X8]], edgeSize = 2,
+	insets = { left = 0, right = 0, top = 0, bottom = 0 },
+}
+
+------------------------------------------------------------------------
+
 local ADDON, Addon = ...
 local Masque = IsAddOnLoaded("Masque")
+
 local AddBorder = Addon.AddBorder
-local AddShadow = Addon.AddShadow
-local config = Addon.config
 local noop = Addon.noop
+
+------------------------------------------------------------------------
+
+local _, PLAYER_CLASS = UnitClass("player")
+
+local function ColorByClass(frame, class)
+	if not frame.__PhanxBorder then
+		AddBorder(frame)
+	end
+
+	local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class or PLAYER_CLASS]
+	frame:SetBorderColor(color.r, color.g, color.b)
+end
+Addon.ColorByClass = ColorByClass
+
+local function ColorByItemQuality(frame, quality, link)
+	if not frame.__PhanxBorder then
+		AddBorder(frame)
+	end
+
+	if not quality then
+		local _
+		_, _, quality = GetItemInfo(link or 0)
+	end
+
+	if quality and quality > 1 then
+		local color = ITEM_QUALITY_COLORS[quality]
+		frame:SetBorderColor(color.r, color.g, color.b)
+		return true
+	else
+		frame:SetBorderColor()
+	end
+end
+Addon.ColorByItemQuality = ColorByItemQuality
+
+------------------------------------------------------------------------
 
 local applyFuncs = { }
 
@@ -32,37 +78,6 @@ eventFrame:SetScript("OnEvent", function(self, event)
 		self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	end
 end)
-
-local BACKDROP = {
-	bgFile = [[Interface\BUTTONS\WHITE8X8]], tile = true, tileSize = 8,
-	edgeFile = [[Interface\BUTTONS\WHITE8X8]], edgeSize = 2,
-	insets = { left = 0, right = 0, top = 0, bottom = 0 },
-}
-
-local _, PLAYER_CLASS = UnitClass("player")
-local function ColorByClass(frame, class)
-	local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class or PLAYER_CLASS]
-	frame:SetBorderColor(color.r, color.g, color.b)
-end
-Addon.ColorByClass = ColorByClass
-
-local function ColorByItemQuality(frame, quality, link)
-	if not frame.BorderTextures then
-		AddBorder(frame)
-	end
-	if not quality then
-		local _
-		_, _, quality = GetItemInfo(link or 0)
-	end
-	if quality and quality > 1 then
-		local color = ITEM_QUALITY_COLORS[quality]
-		frame:SetBorderColor(color.r, color.g, color.b)
-		return true
-	else
-		frame:SetBorderColor()
-	end
-end
-Addon.ColorByItemQuality = ColorByItemQuality
 
 ------------------------------------------------------------------------
 --	Bordered tooltips
@@ -93,9 +108,10 @@ local borderedTooltipRegions = {
 
 tinsert(applyFuncs, function()
 	for i = #borderedTooltips, 1, -1 do
-		local f = _G[borderedTooltips[i]]
+		local name = borderedTooltips[i]
+		local f = _G[name]
 		if f then
-			--print("Adding border to", borderedTooltips[i])
+			--print("Adding border to", name)
 			for _, region in pairs(borderedTooltipRegions) do
 				f[region]:SetTexture("")
 			end
@@ -193,19 +209,6 @@ tinsert(applyFuncs, function()
 			local link = GetContainerItemLink(bag, slot)
 			ColorByItemQuality(button, nil, link)
 		end
-		--[[
-		local id = self:GetID()
-		local name = self:GetName()
-		local size = self.size
-
-		for i=1, size do
-			local bid = size - i + 1
-			local slotFrame = _G[name .. 'Item' .. bid]
-			local slotLink = GetContainerItemLink(id, i)
-
-			oGlow:CallFilters('bags', slotFrame, _E and slotLink)
-		end
-		]]
 	end)
 
 	---------------------------------------------------------------------
@@ -249,7 +252,7 @@ tinsert(applyFuncs, function()
 	select(10, CharacterSecondaryHandSlot:GetRegions()):SetTexture("")
 
 	local function ColorPaperDollItemSlot(self)
-		if not self.BorderTextures then return end
+		if not self.__PhanxBorder then return end
 		local item = GetInventoryItemID("player", self:GetID())
 		ColorByItemQuality(self, nil, item)
 	end
@@ -257,7 +260,7 @@ tinsert(applyFuncs, function()
 	hooksecurefunc("PaperDollItemSlotButton_Update", ColorPaperDollItemSlot)
 	hooksecurefunc("PaperDollItemSlotButton_OnLeave", ColorPaperDollItemSlot)
 	hooksecurefunc("PaperDollItemSlotButton_OnEnter", function(self)
-		if not self.BorderTextures then return end
+		if not self.__PhanxBorder then return end
 		ColorByClass(self)
 	end)
 
@@ -270,7 +273,7 @@ tinsert(applyFuncs, function()
 
 	hooksecurefunc("EquipmentFlyout_DisplayButton", function(self)
 		AddBorder(self)
-		self:SetBorderSize(nil, 1) -- scale is wrong on load
+		self:SetBorderInsets(1) -- scale is wrong on load
 
 		local location = self.location
 		if location and location < EQUIPMENTFLYOUT_FIRST_SPECIAL_LOCATION then
@@ -303,7 +306,6 @@ tinsert(applyFuncs, function()
 		local button = _G["MailItem"..i.."Button"]
 		mailInboxButtons[i] = button
 		AddBorder(button)
-
 		--_G["MailItem"..i.."ButtonIcon"]:SetTexCoord()
 	end
 
@@ -419,28 +421,28 @@ tinsert(applyFuncs, function()
 
 	for i = 1, MAX_NUM_ITEMS do
 		AddBorder(_G["QuestInfoItem"..i])
-		if Addon.isPhanx then
-			_G["QuestInfoItem"..i.."NameFrame"]:SetTexture("")
+		if isPhanx then
 			_G["QuestInfoItem"..i.."Name"]:SetFontObject(QuestFontNormalSmall)
+			_G["QuestInfoItem"..i.."NameFrame"]:SetTexture("")
 		end
 	end
 
 	hooksecurefunc("QuestInfo_Display", function()
 		-- Have to set border sizes here because scale is weird at PLAYER_LOGIN
-		QuestInfoRewardSpell:SetBorderSize(nil, 10, 108, 2, 14) -- still 4px bigger (2px each inset) than skillpoints and items
-		QuestInfoSkillPointFrame:SetBorderSize(nil, -1, 112, 2, 3)
+		QuestInfoRewardSpell:SetBorderInsets(10, 108, 2, 14) -- still 4px bigger (2px each inset) than skillpoints and items
+		QuestInfoSkillPointFrame:SetBorderInsets(-1, 112, 2, 3)
 		for i = 1, MAX_NUM_ITEMS do
 			local f = _G["QuestInfoItem"..i]
 			local link = f.type and (QuestInfoFrame.questLog and GetQuestLogItemLink or GetQuestItemLink)(f.type, f:GetID())
 			ColorByItemQuality(f, nil, link)
-			f:SetBorderSize(nil, 2, 109, 2, 3)
+			f:SetBorderInsets(2, 109, 2, 3)
 		end
 	end)
 
 	for i = 1, MAX_REQUIRED_ITEMS do
 		local f = _G["QuestProgressItem"..i]
 		AddItemBorder(f)
-		f:SetBorderSize(nil, 2, 107, 1, 2)
+		f:SetBorderInsets(2, 107, 1, 2)
 	end
 
 	hooksecurefunc("QuestFrameProgressItems_Update", function()
@@ -476,23 +478,23 @@ tinsert(applyFuncs, function()
 		_G["SpellButton" .. i .. "IconTexture"]:SetTexCoord(0.06, 0.94, 0.06, 0.94)
 		button:HookScript("OnDisable", Button_OnDisable)
 		button:HookScript("OnEnable", Button_OnEnable)
-		if Addon.isPhanx then
-			button.SpellName:SetFont(config.font, 16)
+		if isPhanx then
+			button.SpellName:SetFont(FONT, 16)
 		end
 	end
 
 	hooksecurefunc("SpellBook_UpdateCoreAbilitiesTab", function()
 		for i = 1, #SpellBookCoreAbilitiesFrame.Abilities do
 			local button = SpellBookCoreAbilitiesFrame.Abilities[i]
-			if not button.BorderTextures then
+			if not button.__PhanxBorder then
 				AddBorder(button)
 				button.iconTexture:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 				button.FutureTexture:SetTexture("")
 				select(3, button:GetRegions()):SetTexture("") -- swirly thing
 				local a, b, c, x, y = button.Name:GetPoint(1)
 				button.Name:SetPoint(a, b, c, x, 3)
-				if Addon.isPhanx then
-					button.Name:SetFont(config.font, 16)
+				if isPhanx then
+					button.Name:SetFont(FONT, 16)
 				end
 			end
 		end
@@ -555,7 +557,7 @@ tinsert(applyFuncs, function()
 			local button = buttons[i]
 			if not button.BorderTextures then
 				AddBorder(button)
-				button:SetBorderSize(nil, 3, 125, 4, 4)
+				button:SetBorderInsets(3, 125, 4, 4)
 				button.icon:SetDrawLayer("ARTWORK")
 			end
 		end
@@ -613,7 +615,7 @@ tinsert(applyFuncs, function()
 	hooksecurefunc("PetBattleFrame_UpdateAllActionButtons", function(self)
 		--print("PetBattleFrame_UpdateAllActionButtons")
 		local f = self.BottomFrame
-		if f.CatchButton.BorderTextures then return end
+		if f.CatchButton.__PhanxBorder then return end
 
 		AddBorder(f.CatchButton, nil, 2)
 		AddBorder(f.ForfeitButton, nil, 2)
@@ -745,7 +747,7 @@ tinsert(applyFuncs, function()
 		for col = 1, 3 do
 			local button = _G["PlayerTalentFrameTalentsTalentRow"..row.."Talent"..col]
 			AddBorder(button)
-			button:SetBorderSize(nil, 36, 116, 6, 6)
+			button:SetBorderInsets(36, 116, 6, 6)
 		end
 	end
 
@@ -769,7 +771,7 @@ tinsert(applyFuncs, function()
 			local button = _G["TradeSkillReagent"..j]
 			local link = GetTradeSkillReagentItemLink(i, j)
 			ColorByItemQuality(button, nil, link)
-			button:SetBorderSize(nil, 0, 107, 0, 3)
+			button:SetBorderInsets(0, 107, 0, 3)
 		end
 	end)
 

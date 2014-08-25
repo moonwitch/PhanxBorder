@@ -6,12 +6,17 @@
 	See the accompanying README and LICENSE files for more information.
 ----------------------------------------------------------------------]]
 
+local USE_CLASS_COLOR = true
+
+------------------------------------------------------------------------
+
 local _, Addon = ...
 local Masque = IsAddOnLoaded("Masque")
+
 local AddBorder = Addon.AddBorder
-local AddShadow = Addon.AddShadow
-local config = Addon.config
 local noop = Addon.noop
+
+------------------------------------------------------------------------
 
 local applyFuncs = {}
 
@@ -45,7 +50,7 @@ tinsert(applyFuncs, function()
 			while true do
 				local f = _G["Dewdrop20Level" .. i]
 				if not f then break end
-				if not f.borderTextures then
+				if not f.__PhanxBorder then
 					local j = 1
 					while true do
 						local fc = select(j, f:GetChildren())
@@ -82,7 +87,6 @@ tinsert(applyFuncs, function()
 			local tooltip = Acquire(lib, ...)
 			if tooltip then
 				AddBorder(tooltip)
-				tooltip:SetBorderColor()
 			end
 			return tooltip
 		end
@@ -200,7 +204,7 @@ tinsert(applyFuncs, function()
 	end
 
 	local function ItemSlot_Update(button)
-		button:SetBorderSize(nil, 1) -- fixes scaling issues
+		button:SetBorderInsets(1) -- fixes scaling issues
 		button.icon:SetTexCoord(0.03, 0.97, 0.03, 0.97)
 	end
 	local function ItemSlot_OnEnter(button)
@@ -216,7 +220,7 @@ tinsert(applyFuncs, function()
 		AddBorder(button)
 		button:GetNormalTexture():SetTexture("")
 		button:GetHighlightTexture():SetTexture("")
-		button.icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
+		--button.icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
 		button.border.Show = button.border.Hide
 		hooksecurefunc(button, "HideBorder", button.SetBorderColor)
 		hooksecurefunc(button, "Update", ItemSlot_Update)
@@ -238,48 +242,18 @@ tinsert(applyFuncs, function()
 		end
 	end
 
-	local function MoveFrames(frame)
-		frame:SetBackdrop({ bgFile = config.backdrop.texture, tile = true, tileSize = config.backdrop.size })
-		frame:GetSettings():SetColor(config.backdrop.color.r, config.backdrop.color.g, config.backdrop.color.b, config.backdrop.color.a)
-		frame:SetBackdropColor(config.backdrop.color.r, config.backdrop.color.g, config.backdrop.color.b, config.backdrop.color.a)
-		-- ^ Required because :SetColor won't actually set the color if it's the same as the previously saved color.
-
-		local inventory = Bagnon.frames.inventory
-		if not inventory then return end
-		--print("Moving inventory frame...")
-		inventory:ClearAllPoints()
-		inventory:SetPoint("TOPRIGHT", Minimap, "BOTTOMRIGHT", 0, -15)
-		inventory.titleFrame:StopMovingFrame()
-
-		local bank = Bagnon.frames.bank
-		if not bank then return end
-		--print("Moving bank frame...")
-		bank:ClearAllPoints()
-		bank:SetPoint("TOPRIGHT", inventory, "TOPLEFT", -15, 0)
-		bank.titleFrame:StopMovingFrame()
-	end
-
 	hooksecurefunc(Bagnon, "CreateFrame", function(Bagnon, id)
 		--print("Adding border to Bagnon", id, "frame")
 		local frame = Bagnon.frames[id]
 		AddBorder(frame)
 		hooksecurefunc(frame, "UpdateScale", ResizeChildBorders)
 
-		if config.useClassColor then
+		if USE_CLASS_COLOR then
 			local _, class = UnitClass("player")
 			local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
 			frame:GetSettings():SetBorderColor(color.r, color.g, color.b, 1)
 		else
-			frame:GetSettings():SetBorderColor(f.BorderTextures.TOPLEFT:GetVertexColor())
-		end
-
-		if Addon.isPhanx then
-			frame:HookScript("OnShow", MoveFrames)
-			local LibBackdrop = LibStub and LibStub("LibBackdrop-1.0", true)
-			if LibBackdrop then
-				LibBackdrop:EnhanceBackdrop(frame)
-				frame.SetBackdropBorderColor = Addon.SetBorderColor
-			end
+			frame:GetSettings():SetBorderColor(frame:GetBorderColor())
 		end
 	end)
 
@@ -293,25 +267,27 @@ end)
 tinsert(applyFuncs, function()
 	if Bazooka and Bazooka.bars and #Bazooka.bars > 0 then
 		-- print("Adding border to Bazooka")
-		local color = config.useClassColor and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
+		local color = USE_CLASS_COLOR and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
 		for i = 1, #Bazooka.bars do
 			local bar = Bazooka.bars[i]
 			local db = Bazooka.db.profile.bars[i]
 
-			AddBorder(bar.frame, nil, nil, false, true)
-			bar.frame:SetShadowSize(2.5, 6)
-			bar.frame:SetShadowAlpha(0.5)
+			AddBorder(bar.frame)
 
-			db.bgBorderInset = 0
-			db.bgBorderTexture = "None"
-			db.bgBorderColor.r = config.border.color.r
-			db.bgBorderColor.g = config.border.color.g
-			db.bgBorderColor.b = config.border.color.b
+			local r, g, b = bar.frame:GetBorderColor()
+			db.bgBorderColor.r = r
+			db.bgBorderColor.g = g
+			db.bgBorderColor.b = b
+
 			if color then
 				db.textColor.r = color.r
 				db.textColor.g = color.g
 				db.textColor.b = color.b
 			end
+
+			db.bgBorderInset = 0
+			db.bgBorderTexture = "None"
+
 			bar:applyBGSettings()
 			bar:applySettings()
 		end
@@ -344,7 +320,7 @@ tinsert(applyFuncs, function()
 	if Butsu then
 		AddBorder(Butsu)
 		--[[
-		local color = config.useClassColor and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
+		local color = USE_CLASS_COLOR and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
 		if color then
 			Butsu:SetBorderColor(color.r, color.g, color.b)
 			Butsu.title:SetTextColor(color.r, color.g, color.b)
@@ -388,7 +364,7 @@ tinsert(applyFuncs, function()
 			-- print("Adding border to CoolLine icons")
 			for i = 1, CoolLine.border:GetNumChildren() do
 				local f = select(i, CoolLine.border:GetChildren())
-				if f.icon and not f.BorderTextures then
+				if f.icon and not f.__PhanxBorder then
 					-- print("Adding border to CoolLine icon", i)
 					AddBorder(f)
 					f:SetBackdrop(nil)
@@ -479,8 +455,8 @@ tinsert(applyFuncs, function()
 		end
 		local function Grid_AddBorder(f)
 			if not f.SetBorderColor then
-				f:SetBorderSize(0.1)
-				AddBorder(f)
+				f:SetBorderSize(0)
+				AddBorder(f, nil, 1)
 				f.SetBackdropBorderColor = Grid_SetBackdropBorderColor
 				f.SetBorderSize = noop
 			end
@@ -633,44 +609,13 @@ tinsert(applyFuncs, function()
 		AddBorder(button, nil, 2)
 	end
 
-	if Addon.isPhanx then
-		for i = 1, bar:GetNumChildren() do
-			local child = select(i, bar:GetChildren())
-			if child:IsObjectType("StatusBar") then
-				local r, g, b = child:GetStatusBarColor()
-				child:SetStatusBarTexture(config.statusbar)
-				child:SetStatusBarColor(r * 0.75, g * 0.75, b * 0.75)
-			end
-		end
-
-		-- Move enemy action buttons to micro button area
-		-- local _, parent = EnemyActions:GetPoint(1)
-		EnemyActions:ClearAllPoints()
-		EnemyActions:SetPoint("TOPRIGHT", PetBattleFrame.BottomFrame, "TOPRIGHT", 32, -20)
-
-		-- Remove the micro buttons from the pet battle UI
-		local okparents = {
-			BT4BarMicroMenu = true,
-			MainMenuBarArtFrame = true,
-		}
-		hooksecurefunc("UpdateMicroButtonsParent", function(parent)
-			--print("UpdateMicroButtonsParent", parentGetName() or UNKNOWN)
-			if InCombatLockdown() or okparents[parent and parent:GetName() or UNKNOWN] then
-				return
-			end
-			MainMenuBar:GetScript("OnShow")(MainMenuBar)
-		end)
-	end
-
 	return true
 end)
 
 ------------------------------------------------------------------------
 --	PetTracker_Broker
 ------------------------------------------------------------------------
--- sowohl X als auch Y = X as well as Y, both X and Y
--- sondern = but rather, "he is not old, but young", B negates A
--- aber = but, "he is old, but handsome", B does not negate A
+
 tinsert(applyFuncs, function()
 	if not PetTracker_BrokerTip then return end
 
@@ -685,18 +630,6 @@ tinsert(applyFuncs, function()
 			bar.Overlay.BorderRight:SetTexture("")
 			bar.Overlay.BorderCenter:SetTexture("")
 			AddBorder(bar.Overlay, 12)
-
-			if Addon.isPhanx then
-				for i = 1, bar:GetNumChildren() do
-					local child = select(i, bar:GetChildren())
-					if child:IsObjectType("StatusBar") then
-						local r, g, b = child:GetStatusBarColor()
-						child:SetStatusBarTexture(config.statusbar)
-						child:SetStatusBarColor(r * 0.75, g * 0.75, b * 0.75)
-					end
-				end
-			end
-
 			break
 		end
 	end
@@ -723,7 +656,7 @@ end)
 tinsert(applyFuncs, function()
 	if SexyCooldown and SexyCooldown.bars then
 		-- print("Adding borders to SexyCooldown")
-		local color = config.useClassColor and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
+		local color = USE_CLASS_COLOR and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
 		for i, bar in ipairs(SexyCooldown.bars) do
 			AddBorder(bar)
 			if color then
