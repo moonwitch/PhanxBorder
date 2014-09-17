@@ -244,7 +244,9 @@ tinsert(applyFuncs, function()
 		"CharacterMainHandSlot",
 		"CharacterSecondaryHandSlot",
 	}) do
-		Addon.AddBorder(_G[slot], nil, 1)
+		local f = _G[slot]
+		Addon.AddBorder(f, nil, 1)
+		f:SetBorderLayer("OVERLAY")
 		_G[slot.."Frame"]:SetTexture("")
 	end
 
@@ -515,13 +517,13 @@ tinsert(applyFuncs, function()
 		AddBorder(_G["TradeRecipientItem"..i.."ItemButton"])
 	end
 
-	hooksecurefunc("TradeFrame_UpdatePlayerItem", function(id)
-		local link = GetTradePlayerItemLink(id)
+	hooksecurefunc("TradeFrame_UpdatePlayerItem", function(i)
+		local link = GetTradePlayerItemLink(i)
 		ColorByItemQuality(_G["TradePlayerItem"..i.."ItemButton"], nil, link)
 	end)
 
-	hooksecurefunc("TradeFrame_UpdateTargetItem", function(id)
-		local _, _, _, quality = GetTradeTargetItemInfo(id)
+	hooksecurefunc("TradeFrame_UpdateTargetItem", function(i)
+		local _, _, _, quality = GetTradeTargetItemInfo(i)
 		ColorByItemQuality(_G["TradeRecipientItem"..i.."ItemButton"], quality)
 	end)
 
@@ -740,6 +742,7 @@ tinsert(applyFuncs, function()
 	hooksecurefunc("PlayerTalentFrame_CreateSpecSpellButton", function(self, index)
 		local f = self.spellsScroll.child["abilityButton"..index]
 		AddBorder(f, nil, 10)
+		f:SetBorderLayer("OVERLAY")
 		f.ring:Hide()
 	end)
 
@@ -787,19 +790,19 @@ tinsert(applyFuncs, function()
 
 	hooksecurefunc("VoidStorage_ItemsUpdate", function(doDeposit, doContents)
 		if doDeposit then
-			for i = 1, VOID_DEPOSIT_MAX do
+			for i = 1, 9 do
 				local button = _G["VoidStorageDepositButton"..i]
 				local item = GetVoidTransferDepositInfo(i)
 				ColorByItemQuality(button, nil, item)
 			end
 		end
 		if doContents then
-			for i = 1, VOID_WITHDRAW_MAX do
+			for i = 1, 9 do
 				local button = _G["VoidStorageWithdrawButton"..i]
 				local item = GetVoidTransferWithdrawalInfo(i)
 				ColorByItemQuality(button, nil, item)
 			end
-			for i = 1, VOID_STORAGE_MAX do
+			for i = 1, 80 do
 				local button = _G["VoidStorageStorageButton"..i]
 				local item = GetVoidItemInfo(i)
 				ColorByItemQuality(button, nil, item)
