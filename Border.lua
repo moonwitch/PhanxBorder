@@ -63,7 +63,7 @@ function Addon.AddBorder(f, size, inset, bgControl, ...)
 	local t = f.__PhanxBorder.textures
 	for i = 1, #points do
 		local point = points[i]
-		local tx = f:CreateTexture(nil, BORDER_LAYER)
+		local tx = f:CreateTexture(nil, BORDER_LAYER, 100)
 		tx:SetTexture(BORDER_TEXTURE)
 		t[i], t[point] = tx, tx
 	end
