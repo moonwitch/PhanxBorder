@@ -446,6 +446,7 @@ tinsert(applyFuncs, function()
 	local GridFrame = Grid and Grid:GetModule("GridFrame")
 	if GridFrame and GridFrame.registeredFrames then
 		-- print("Adding borders to Grid frames")
+--[[
 		local function Grid_SetBackdropBorderColor(f, r, g, b, a)
 			if a and a == 0 then
 				f:SetBorderColor()
@@ -469,6 +470,7 @@ tinsert(applyFuncs, function()
 			o(self, f)
 			Grid_AddBorder(f)
 		end
+]]
 		return true
 	end
 end)

@@ -1,5 +1,5 @@
-## Interface: 50400
-## Version: 5.4.2.wowi:revision
+## Interface: 60000
+## Version: 6.0.2.wowi:revision
 
 ## Title: PhanxBorder
 ## Notes: Adds shiny borders to stuff.

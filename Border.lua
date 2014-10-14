@@ -53,6 +53,10 @@ local prototype = {
 ------------------------------------------------------------------------
 
 function Addon.AddBorder(f, size, inset, bgControl, ...)
+	print("AddBorder", tostring(type(f) == "table" and f.GetName and f:GetName() or f))
+	if type(f) == "string" then
+		f = _G[f]
+	end
 	assert(type(f) == "table" and type(rawget(f, 0)) == "userdata", "AddBorder: arg1 must be a frame")
 	assert(type(f.CreateTexture) == "function", "AddBorder: arg1 is missing a 'CreateTexture' method")
 	assert(type(f.IsForbidden) ~= "function" or not f:IsForbidden(), "AddBorder: " .. (f:GetName() or UNKNOWN) .. " is a forbidden frame!")

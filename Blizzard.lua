@@ -146,19 +146,16 @@ tinsert(applyFuncs, function()
 		["GameTooltip"] = false,
 		["ItemRefShoppingTooltip1"] = false,
 		["ItemRefShoppingTooltip2"] = false,
-		["ItemRefShoppingTooltip3"] = false,
 		["ItemRefTooltip"] = false,
 		["MovieRecordingFrameTextTooltip1"] = false,
 		["MovieRecordingFrameTextTooltip2"] = false,
 		["PartyMemberBuffTooltip"] = false,
 		["ShoppingTooltip1"] = false,
 		["ShoppingTooltip2"] = false,
-		["ShoppingTooltip3"] = false,
 		["SmallTextTooltip"] = false,
 		["VideoOptionsTooltip"] = false,
 		["WorldMapCompareTooltip1"] = false,
 		["WorldMapCompareTooltip2"] = false,
-		["WorldMapCompareTooltip3"] = false,
 		["WorldMapTooltip"] = false,
 
 		["MerchantRepairItemButton"] = 3,
@@ -178,10 +175,15 @@ tinsert(applyFuncs, function()
 		["SecondaryProfession4SpellButtonLeft"] = 3,
 		["SecondaryProfession4SpellButtonRight"] = 3,
 	}) do
-		-- print("Adding border to " .. frame)
-		AddBorder(_G[frame], nil, offset)
-		if strmatch(frame, "aryProfession") then
-			_G[frame.."NameFrame"]:SetTexture("")
+		print("Adding border to", frame)
+		if _G[frame] and type(_G[frame]) == "table" and type(_G[frame][0] == "userdata") then
+			AddBorder(_G[frame], nil, offset)
+			if _G[frame.."NameFrame"] then
+				_G[frame.."NameFrame"]:SetTexture("")
+			end
+			print("OK")
+		else
+			print("MISSING")
 		end
 	end
 
@@ -420,7 +422,7 @@ tinsert(applyFuncs, function()
 	QuestInfoRewardSpellSpellBorder:SetTexture("")
 
 	AddItemBorder(QuestInfoSkillPointFrame)
-
+--[[
 	for i = 1, MAX_NUM_ITEMS do
 		AddBorder(_G["QuestInfoItem"..i])
 		if isPhanx then
@@ -428,7 +430,7 @@ tinsert(applyFuncs, function()
 			_G["QuestInfoItem"..i.."NameFrame"]:SetTexture("")
 		end
 	end
-
+]]
 	hooksecurefunc("QuestInfo_Display", function()
 		-- Have to set border sizes here because scale is weird at PLAYER_LOGIN
 		QuestInfoRewardSpell:SetBorderInsets(10, 108, 2, 14) -- still 4px bigger (2px each inset) than skillpoints and items
