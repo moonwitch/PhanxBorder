@@ -53,7 +53,7 @@ local prototype = {
 ------------------------------------------------------------------------
 
 function Addon.AddBorder(f, size, inset, bgControl, ...)
-	print("AddBorder", tostring(type(f) == "table" and f.GetName and f:GetName() or f))
+	--print("AddBorder", tostring(type(f) == "table" and f.GetName and f:GetName() or f))
 	if type(f) == "string" then
 		f = _G[f]
 	end

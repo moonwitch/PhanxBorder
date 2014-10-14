@@ -86,6 +86,7 @@ end)
 local borderedTooltips = {
 	"BattlePetTooltip",
 	"FloatingBattlePetTooltip",
+	"FloatingGarrisonFollowerTooltip",
 	"LFDSearchStatus",
 	"PetBattlePrimaryAbilityTooltip",
 	"PetBattlePrimaryUnitTooltip",
@@ -175,15 +176,10 @@ tinsert(applyFuncs, function()
 		["SecondaryProfession4SpellButtonLeft"] = 3,
 		["SecondaryProfession4SpellButtonRight"] = 3,
 	}) do
-		print("Adding border to", frame)
-		if _G[frame] and type(_G[frame]) == "table" and type(_G[frame][0] == "userdata") then
-			AddBorder(_G[frame], nil, offset)
-			if _G[frame.."NameFrame"] then
-				_G[frame.."NameFrame"]:SetTexture("")
-			end
-			print("OK")
-		else
-			print("MISSING")
+		--print("Adding border to", frame)
+		AddBorder(_G[frame], nil, offset)
+		if _G[frame.."NameFrame"] then
+			_G[frame.."NameFrame"]:SetTexture("")
 		end
 	end
 
