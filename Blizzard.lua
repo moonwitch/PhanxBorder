@@ -400,7 +400,7 @@ tinsert(applyFuncs, function()
 	---------------------------------------------------------------------
 	-- Quest frames
 	---------------------------------------------------------------------
-
+--[[
 	local function AddItemBorder(f)
 		AddBorder(f)
 		local icon = f.icon or f.Icon or _G[f:GetName().."IconTexture"]
@@ -418,7 +418,7 @@ tinsert(applyFuncs, function()
 	QuestInfoRewardSpellSpellBorder:SetTexture("")
 
 	AddItemBorder(QuestInfoSkillPointFrame)
---[[
+
 	for i = 1, MAX_NUM_ITEMS do
 		AddBorder(_G["QuestInfoItem"..i])
 		if isPhanx then
@@ -426,7 +426,7 @@ tinsert(applyFuncs, function()
 			_G["QuestInfoItem"..i.."NameFrame"]:SetTexture("")
 		end
 	end
-]]
+
 	hooksecurefunc("QuestInfo_Display", function()
 		-- Have to set border sizes here because scale is weird at PLAYER_LOGIN
 		QuestInfoRewardSpell:SetBorderInsets(10, 108, 2, 14) -- still 4px bigger (2px each inset) than skillpoints and items
@@ -453,7 +453,7 @@ tinsert(applyFuncs, function()
 			ColorByItemQuality(f, nil, link)
 		end
 	end)
-
+]]
 	---------------------------------------------------------------------
 	-- Spellbook
 	---------------------------------------------------------------------
